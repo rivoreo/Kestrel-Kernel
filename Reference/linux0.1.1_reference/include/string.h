@@ -300,7 +300,7 @@ extern inline char *
 strstr (const char *cs, const char *ct)
 {
   register char *__res __asm__ ("ax");	// __res 是寄存器变量(eax)。
-  __asm__ ("cld\n\t" \		// 清方向位。
+  __asm__ ("cld\n\t" 		// 清方向位。
 	   "movl %4,%%edi\n\t"	// 首先计算串2 的长度。串2 指针放入edi 中。
 	   "repne\n\t"		// 比较al(0)与串2 中的字符（es:[edi]），并edi++。
 	   "scasb\n\t"		// 如果不相等就继续比较(ecx 逐步递减)。

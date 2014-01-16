@@ -18,7 +18,7 @@
 /*
 * 该程序从三个不同的程序中创建磁盘映象文件：
 *
-* - bootsect：该文件的8086 机器码最长为510 字节，用于加载其它程序。
+* - bootsect：该文件的8086 机器码最机器码长为510 字节，用于加载其它程序。
 * - setup：该文件的8086 机器码最长为4 个磁盘扇区，用于设置系统参数。
 * - system：实际系统的80386 代码。
 *
@@ -53,9 +53,12 @@
 
 /* max nr of sectors of setup: don't change unless you also change
 * bootsect etc */
-/* 下面指定setup 模块占的最大扇区数：不要改变该值，除非也改变bootsect 等相应文件。
+/* 下面指定setup 模块占的最大扇区数：不要改变该值，除非也改变bootsect 等相应文件。*/
 #define SETUP_SECTS 4 // setup 最大长度为4 个扇区（4*512 字节）。
-*/
+
+#define MINOR(a) ((a)&0xff)
+#define MAJOR(a) (((unsigned)(a))>>8)
+
 #define STRINGIFY(x) #x		// 用于出错时显示语句中表示扇区数。
 
 //// 显示出错信息，并终止程序。
