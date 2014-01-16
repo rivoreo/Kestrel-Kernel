@@ -8,8 +8,8 @@
 0x90000
 0x10000
 0xA0000
-system 模块
-代码执行位置线路
+!system 模块
+!代码执行位置线路
 0x90200
 ! 0x30000 字节=192 kB（上面Linus 估算错了），对于当前的版本空间已足够了。
 !
@@ -104,7 +104,7 @@ rep ! 重复执行，直到cx = 0
 movw ! 移动1 个字；
 jmpi go,INITSEG ! 间接跳转。这里INITSEG 指出跳转到的段地址。
 go: mov ax,cs ! 将ds、es 和ss 都置成移动后代码所在的段处(0x9000)。
-mov ds,ax ！由于程序中有堆栈操作(push,pop,call)，因此必须设置堆栈。
+mov ds,ax !由于程序中有堆栈操作(push,pop,call)，因此必须设置堆栈。
 mov es,ax
 ! put stack at 0x9ff00. ! 将堆栈指针sp 指向0x9ff00(即0x9000:0xff00)处
 mov ss,ax
