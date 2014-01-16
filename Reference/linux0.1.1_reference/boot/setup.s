@@ -251,7 +251,7 @@ mov al,#0x01 ! 8086 mode for both
 out #0x21,al ! 送主芯片ICW4 命令字。8086 模式；普通EOI 方式，
 ! 需发送指令来复位。初始化结束，芯片就绪。
 .word 0x00eb,0x00eb
-out #0xA1,al ！送从芯片ICW4 命令字，内容同上。
+out #0xA1,al ! 送从芯片ICW4 命令字，内容同上。
 .word 0x00eb,0x00eb
 mov al,#0xFF ! mask off all interrupts for now
 out #0x21,al ! 屏蔽主芯片所有中断请求。
