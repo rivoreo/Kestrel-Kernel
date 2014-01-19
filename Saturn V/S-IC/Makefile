@@ -4,7 +4,9 @@ LD = ld86 -0
 ASFLAGS = -a
 LDFLAGS = -s
 
-sector: bootsector fdd
+first: makembr sector
+
+sector: bootsector
 	dd if=bootsector of=$@ bs=32 skip=1
 
 bootsector: bootsector.o
