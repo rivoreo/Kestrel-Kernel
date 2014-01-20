@@ -230,17 +230,10 @@ _start1:
 
 disk_serial_number_structure:
 
-	/********************************************************************/
-	/* This piece of code is structured! It contains address 0x1FFC and */
-	/* a disk serial number that can be created by grub4dos installers. */
-	/********************************************************************/
-
-	movw	$0x1FFC, %bx		/* .byte 0xBB, 0xFC, 0x1F */
+	movw	$(grldr_signature - _start1), %bx	/* BX=0x1FFC */
 
 	/* if the boot loader has loaded more than one sector, we use them */
-	movl	$0x93cb4d05, %eax	/* date-time for disk serial number */
-
-		/* "MOV EAX"(0x66, 0xB8) followed by the changeable S.N. */
+	movl	$0xAA555247, %eax	/* "GR" 0x55 0xAA */
 
 disk_serial_number_structure_end:
 
@@ -282,8 +275,54 @@ disk_serial_number_structure_end:
 	/* check the existence of helper */
 	cmpl	%eax, (%bx)
 
+#if (! defined(GRLDR_MBR)) && (! defined(GRLDR_INSTALL))
+
 	jne	Error_or_prev_MBR	/* Missing helper */
 
+#else
+
+	je	1f
+
+	/* try to load helper from floppy */
+
+	pushal
+
+	movw	0x18, %cx	/* BPB sectors per track at offset 0x18 */
+
+	cmpw	$0x3F, %cx
+	ja	3f
+
+	/* CH=0 */
+
+	movb	$(((pre_stage2_start - _start1) >> 9) - 1), %al
+	cmpb	%al, %cl
+	jbe	3f
+
+	//decw	%ax		/* skip the first sector already loaded */
+	
+	movw	$3, %di		/* retry 3 times on read failure */
+2:
+	movb	$2, %ah		/* BIOS disk read */
+	cwd			/* DX=0 for floppy head 0 */
+	movw	$0x200, %bx	/* ES:BX immediately follow this sector */
+	movb	$2, %cl		/* CH=0,skip the first sector already loaded */
+
+	call	read_disk_with_reset_and_dec_di
+	jnc	3f
+
+	jnz	2b
+3:
+	popal
+	cmpl	%eax, (%bx)		/* helper loaded? */
+
+	jne	Error_or_prev_MBR	/* Missing helper */
+
+	/* Helper is loaded from floppy, so we set floppy as preferred. */
+	//movw	$0xff00, 0x06
+	//movw	%cx, 0x06	/* CX=0 */
+	call	set_floppy_preferred
+1:
+#endif
 
 	popfw			/* CF=1 on error */
 	jc	try_floppy	/* harddisk (hd0) failed, try floppy (fd0) */
@@ -544,13 +583,19 @@ read_disk_with_reset_and_dec_di:
 	int	$0x10		/* via TTY mode */
 
 print_message:
+
 	lodsb	%cs:(%si), %al	/* get token */
 	cmpb	$0, %al		/* end of string? */
 	jne	3b
 	ret
 
 message_string:
-	.ascii	"\r\nMissing kernel, may need to rebuild it.\0"
+
+#if (! defined(GRLDR_MBR)) && (! defined(GRLDR_INSTALL))
+	.ascii	"\r\nMissing helper.\0"
+#else
+	.ascii	"\r\nMissing MBR-helper.\0"
+#endif
 
 #;buggy_bios_string:
 #;
@@ -1099,6 +1144,9 @@ grldr_real_start:
 	movw	$0x0003, %ax	/* set display mode: 80*25 color text */
 	int	$0x10
 
+	xorw	%bx, %bx
+	movw	$(launch_kernel - _start1), %si
+	call	print_message
 	//xorw	%bx, %bx
 	//movw	$(launch_pre_stage2 - _start1), %si
 	//call	print_message	/* CS:SI points to message string */
@@ -1116,8 +1164,12 @@ grldr_real_start:
 
 //	.byte	0		/* mark the end of ascii zero string */
 
+launch_kernel:
+	.ascii	"\r\nStarting Kestrel...\r\n"
+	.byte	0
+
 default_config_file:
-	.ascii	"/menu.lst"
+	.ascii	"/kestrel.cfg"
 
 	.byte	0		/* mark the end of ascii zero string */
 #endif	/* ! defined(GRLDR_MBR) && (! defined(GRLDR_INSTALL)) */
@@ -1251,7 +1303,7 @@ Entry_32:
 	. = Entry_32 + 0x03
 
 #ifdef	BOOTGRUB
-	.ascii	"Kestrel "	/* OEM name string (of OS which formatted the disk). */
+	.ascii	"KESTREL "	/* OEM name string (of OS which formatted the disk). */
 #endif
 
 	. = Entry_32 + 0x0b
@@ -1778,7 +1830,7 @@ msg_BootError_32:
 	.ascii	"No "
 
 filename_32:
-	.ascii	"kestrel    \0"
+	.ascii	"KESTREL    \0"
 /*
 #ifdef	BOOTGRUB
 	.ascii	"GRLDR      \0"
@@ -1953,7 +2005,7 @@ Entry_12_16:
 	. = Entry_12_16 + 0x03
 
 #ifdef	BOOTGRUB
-	.ascii	"GRLDR   "
+	.ascii	"KESTREL "
 #endif
 
 	. = Entry_12_16 + 0x0b
@@ -2628,7 +2680,7 @@ msg_BootError_12_16:
 	.ascii	"No "
 
 filename_12_16:
-	.ascii	"kestrel    \0"
+	.ascii	"KESTREL    \0"
 /*
 #ifdef	BOOTGRUB
 	.ascii	"GRLDR      \0"
@@ -3450,7 +3502,7 @@ msg_No_grldr_ext2:
 	.ascii	"No "
 
 filename_ext2:
-	.ascii	"grldr\0"
+	.ascii	"kestrel\0"
 
 	. = Entry_ext2 + 0x1ee
 
@@ -3950,7 +4002,7 @@ msg_NTFS_Not_Found_Error:
 	.ascii "No "
 
 nt_boot_image:
-	.ascii "grldr\0"
+	.ascii "kestrel\0"
 
 // Kernel load address, located at 0x1E8
 	. = Entry_nt + 0x1e8
@@ -8128,5 +8180,4 @@ grldr_signature:
 #endif
 
 pre_stage2_start:
-
 
