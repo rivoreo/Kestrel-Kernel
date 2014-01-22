@@ -60,12 +60,12 @@
 #define strcpy kernel_strcpy
 #define strncpy kernel_strncpy
 #define sprintf kernel_sprintf
-/*
+
 #undef putchar
 #define putchar kernel_putchar
 #define puts kernel_puts
 #define printf kernel_printf
-*/
+
 
 /* see typedef gfx_data_t below */
 #define gfx_ofs_v1_ok			0x00
@@ -103,6 +103,7 @@
 
 #ifndef ASM_FILE
 #include <kestrel/console.h>
+#include <kestrel/errno.h>
 #include <kestrel/graphics.h>
 #include <kestrel/kernel.h>
 #include <kestrel/shell.h>

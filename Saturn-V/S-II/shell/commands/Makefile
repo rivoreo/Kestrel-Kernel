@@ -2,7 +2,7 @@ ifeq ($(CC),cc)
 CC = gcc -m32
 endif
 
-CFLAGS = -I../../../include --include ../../../version.h -O1 -Wall
+CFLAGS = -I../../../include --include ../../../version.h --include ../../shared.h -O1 -Wall
 
 COMMANDS = \
 	echo.o \
