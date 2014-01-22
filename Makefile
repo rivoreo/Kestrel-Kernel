@@ -3,7 +3,7 @@ export ECHO := $(PWD)/tools/echo
 
 first:	$(ECHO) kestrel
 
-kestrel:	loader/arch/$(ARCH)/start.com kernel/kernel.com
+kestrel:	loader/start.com kernel/kernel.com
 	$(ECHO) -ne "\000\000\000\000\000\000\000\000\000\000\000\000" | cat $^ - > $@
 
 loader/start.com:	kernel/kernel.com

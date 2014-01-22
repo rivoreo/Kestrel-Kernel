@@ -19,7 +19,7 @@
  */
 
 #ifndef ASM_FILE
-#include "pc_slice.h"
+#include <kestrel/pc-slice.h>
 #endif
 
 #ifdef FSYS_FFS
