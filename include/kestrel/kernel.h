@@ -22,10 +22,14 @@ struct mmar_desc
   unsigned long type;		/* Type of address range. */
 } __attribute__ ((packed));
 
+void stop(void) __attribute__((__noreturn__));
 void panic(const char *, int) __attribute__((__noreturn__));
 
 size_t kernel_strlen(const char *);
 char *kernel_strcpy(char *, const char *);
+
+int kernel_atoi(const char *);
+long int kernel_atol(const char *);
 
 int kernel_putchar(int);
 int kernel_puts(const char *);

@@ -8,9 +8,11 @@
 	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 */
 
+#include <kestrel/kernel.h>
+
 int panic_command(int argc, char **argv) {
 	if(argc < 2) {
-		kernel_printf("Usage: panic <message> [<status>]\n", argv[0]);
+		kernel_puts("Usage: panic <message> [<status>]");
 		return -1;
 	}
 	int status = 0;

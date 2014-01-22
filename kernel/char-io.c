@@ -75,7 +75,7 @@ find_specifier:
 					goto find_specifier;
 			}
 		} else {
-			kernel_putchar (c);
+			kernel_putchar(c);
 			r++;
 		}
 	}
@@ -84,10 +84,12 @@ find_specifier:
 }
 
 int kernel_puts(const char *s) {
-	int r = 0;
+	int r = 1;
 	while(*s) {
 		if(kernel_putchar(*(s++)) < 0) return -1;
 		r++;
 	}
+	putchar('\r');
+	putchar('\n');
 	return r;
 }

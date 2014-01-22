@@ -184,15 +184,12 @@ VARIABLE(no_decompression)
 real_codestart:
 	cli		/* we're not safe here! */
 	cld
-
+/*
 	movw	$0x0e4b, %ax
 	int	$0x10		# put a char 'K'
-
+*/
 	movw	$0x0e0a, %ax
 	int	$0x10		# put a LF
-
-	movw	$0x0e31, %ax
-	int	$0x10
 
 	/* set up %ds, %ss, and %es */
 	xorw	%ax, %ax
@@ -271,8 +268,6 @@ real_codestart:
 	//jmp	3f
 
 2:
-	movw	$0x0e32, %ax
-	int	$0x10
 	xorw	%ax, %ax
 	movw	%ax, %ds			/* DS=0 */
 1:
@@ -283,8 +278,6 @@ real_codestart:
 	//movl	%eax, ABS(EXT_C(ROM_int15))
 //3:
 	/* check the BIOS type (currently only for Bochs) */
-	movw	$0x0e33, %ax
-	int	$0x10
 	movw	$0xF000, %ax
 	movw	%ax, %es			/* ES=0xF000 */
 	movw	$0xFF00, %di
@@ -294,9 +287,6 @@ real_codestart:
 	setz	ABS(EXT_C(bios_id))	/* 1 for bochs, 0 for unknown. */
 	xorw	%ax, %ax
 	movw	%ax, %es			/* ES=0 */
-
-	movw	$0x0e34, %ax
-	int	$0x10
 
 #endif  /* STAGE1_5 */
 //#ifndef SUPPORT_DISKLESS
@@ -552,20 +542,15 @@ real_codestart:
 	int	$0x16
 	jmp	2b
 1:
-
 	popw	%bx
 
 4:
-
 	/* transition to protected mode */
 	DATA32	call EXT_C(real_to_prot)
 
 	/* The ".code32" directive takes GAS out of 16-bit mode. */
 	.code32
 
-	movl	$71, (%esp)
-	call	console_putchar
-	call	console_getkey
 #ifndef STAGE1_5
 	testb	%bl, %bl
 	jnz	1f
@@ -698,13 +683,6 @@ ENTRY(stop)
 
 //ENTRY(hard_stop)
 hard_stop:
-
-	movw	$0x0e53, %ax
-	int	$0x10
-
-	movw	$0x0e54, %ax
-	int	$0x10
-
 	sti
 	hlt
 	//jmp EXT_C(hard_stop)

@@ -12,4 +12,5 @@
 
 void cmain() {
 	kernel_puts("Kestrel " VERSION);
+	panic("test", 0);
 }
