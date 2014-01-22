@@ -14,6 +14,7 @@
 void enter_shell(void) __attribute__((__noreturn__));
 void run_script(const char *) __attribute__((__noreturn__));
 
+extern char config_file[];
 extern int use_config_file;
 
 #endif

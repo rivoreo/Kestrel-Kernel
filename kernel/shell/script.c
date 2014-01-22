@@ -8,8 +8,10 @@
 	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 */
 
-// this function is noreturn
-void run_script(const char *script) {
+#include <kestrel/kernel.h>
+#include <kestrel/shell.h>
 
+void run_script(const char *script) {
+	kernel_printf("kestrel kernel debug: script: %s\n", script);
 	panic("script has not to run init");
 }

@@ -9,8 +9,15 @@
 */
 
 #include <kestrel/kernel.h>
+#include <kestrel/shell.h>
 
 void cmain() {
 	kernel_puts("Kestrel " VERSION);
-	panic("test");
+	if(use_config_file) {
+		kernel_printf("Loading config file: %s ...\n", config_file);
+		run_script(config_file);
+	} else {
+		kernel_printf("\r\n");
+		enter_shell();
+	}
 }

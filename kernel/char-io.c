@@ -8,12 +8,14 @@
 	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 */
 
-#include "shared.h"
+//#include "shared.h"
+#include <kestrel/kernel.h>
+#include <kestrel/graphics.h>
 
-#define kernel_putchar console_putchar
+void console_putchar(int);
 
-int printf(const char *format, ...) {
-	int *dataptr = (int *)(void *) &format;
+int kernel_printf(const char *format, ...) {
+	int *dataptr = (int *)(void *)&format;
 	char c, *ptr, str[16];
 	char pad;
 	int width;
@@ -89,7 +91,19 @@ int kernel_puts(const char *s) {
 		if(kernel_putchar(*(s++)) < 0) return -1;
 		r++;
 	}
-	putchar('\r');
-	putchar('\n');
+	kernel_putchar('\r');
+	kernel_putchar('\n');
 	return r;
+}
+
+int kernel_putchar(int c) {
+#ifdef SUPPORT_GRAPHICS
+	if(graphics_inited) return graphics_putchar(c);
+	else {
+#endif
+		console_putchar(c);
+		return c;
+#ifdef SUPPORT_GRAPHICS
+	}
+#endif
 }

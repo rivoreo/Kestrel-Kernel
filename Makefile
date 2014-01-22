@@ -17,4 +17,4 @@ clean:
 	make -C kernel $@
 
 distclean:	clean
-	rm -f kestrel
+	rm -f $(ECHO) kestrel

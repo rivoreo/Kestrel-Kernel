@@ -20,10 +20,13 @@ OBJS = \
 	char-io.o \
 	common.o \
 	console.o \
+	graphics.o \
 	kestrel.o \
 	panic.o \
 	string.o \
-	shell/common.o
+	shell/common.o \
+	shell/interactive.o \
+	shell/script.o
 
 first:	kernel.com kernel-size.h
 

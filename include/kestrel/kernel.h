@@ -28,6 +28,7 @@ void kernel_panic(const char *, int) __attribute__((__noreturn__));
 
 size_t kernel_strlen(const char *);
 char *kernel_strcpy(char *, const char *);
+void *kernel_memcpy(void *, const void *, size_t);
 
 int kernel_atoi(const char *);
 long int kernel_atol(const char *);

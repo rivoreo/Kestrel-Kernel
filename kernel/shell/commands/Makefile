@@ -5,6 +5,7 @@ endif
 CFLAGS = -I../../../include --include ../../../version.h -O1 -Wall
 
 COMMANDS = \
+	echo.o \
 	panic.o
 
 commands.a:	$(COMMANDS)

@@ -48,19 +48,24 @@
 #define A_NORMAL        0x7
 #define A_REVERSE       0x70
 
+#define memcpy kernel_memcpy
+#define memncpy kernel_memncpy
 #define strncat kernel_strncat
 #define strstr kernel_strstr
 #define memcmp kernel_memcmp
 #define strcmp kernel_strcmp
 #define tolower kernel_tolower
 #define strlen kernel_strlen
+#define strcat kernel_strcat
 #define strcpy kernel_strcpy
+#define strncpy kernel_strncpy
 #define sprintf kernel_sprintf
-
+/*
 #undef putchar
 #define putchar kernel_putchar
 #define puts kernel_puts
 #define printf kernel_printf
+*/
 
 /* see typedef gfx_data_t below */
 #define gfx_ofs_v1_ok			0x00
@@ -97,8 +102,11 @@
 #define gfx_ofs_v2_timeout		0x8c
 
 #ifndef ASM_FILE
+#include <kestrel/console.h>
+#include <kestrel/graphics.h>
 #include <kestrel/kernel.h>
 #include <kestrel/shell.h>
+#include <kestrel/types.h>
 #endif
 
 #endif
