@@ -6,14 +6,14 @@ first:	$(ECHO) kestrel
 kestrel:	loader/arch/$(ARCH)/start.com kernel/kernel.com
 	$(ECHO) -ne "\000\000\000\000\000\000\000\000\000\000\000\000" | cat $^ - > $@
 
-loader/arch/$(ARCH)/start.com:	kernel/kernel.com
-	make -C loader/arch/$(ARCH)
+loader/start.com:	kernel/kernel.com
+	make -C loader
 
 kernel/kernel.com:
 	make -C kernel
 
 clean:
-	make -C loader/arch/$(ARCH) $@
+	make -C loader $@
 	make -C kernel $@
 
 distclean:	clean

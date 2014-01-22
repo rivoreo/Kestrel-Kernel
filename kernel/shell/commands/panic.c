@@ -17,5 +17,5 @@ int panic_command(int argc, char **argv) {
 	}
 	int status = 0;
 	if(argc > 2) status = kernel_atoi(argv[2]);
-	panic(argv[1], status);
+	kernel_panic(argv[1], status);
 }

@@ -23,7 +23,8 @@ struct mmar_desc
 } __attribute__ ((packed));
 
 void stop(void) __attribute__((__noreturn__));
-void panic(const char *, int) __attribute__((__noreturn__));
+void panic(const char *) __attribute__((__noreturn__));
+void kernel_panic(const char *, int) __attribute__((__noreturn__));
 
 size_t kernel_strlen(const char *);
 char *kernel_strcpy(char *, const char *);
