@@ -13,6 +13,13 @@
 
 #include <kestrel/types.h>
 
+/* Values for the second argument to access.
+   These may be OR'd together.  */
+#define	R_OK	4		/* Test for read permission.  */
+#define	W_OK	2		/* Test for write permission.  */
+#define	X_OK	1		/* Test for execute permission.  */
+#define	F_OK	0		/* Test for existence.  */
+
 /* Memory map address range descriptor used by GET_MMAP_ENTRY. */
 struct mmar_desc
 {
@@ -32,6 +39,10 @@ void *kernel_memcpy(void *, const void *, size_t);
 
 int kernel_atoi(const char *);
 long int kernel_atol(const char *);
+
+int kernel_access(const char *, int);
+int kernel_open(const char *, int);
+int kernel_close(int);
 
 int kernel_putchar(int);
 int kernel_puts(const char *);

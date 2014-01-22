@@ -21,6 +21,7 @@ OBJS = \
 	common.o \
 	console.o \
 	graphics.o \
+	io.o \
 	kestrel.o \
 	panic.o \
 	string.o \

@@ -97,6 +97,7 @@ int kernel_puts(const char *s) {
 }
 
 int kernel_putchar(int c) {
+	if(c == '\n') kernel_putchar('\r');
 #ifdef SUPPORT_GRAPHICS
 	if(graphics_inited) return graphics_putchar(c);
 	else {
