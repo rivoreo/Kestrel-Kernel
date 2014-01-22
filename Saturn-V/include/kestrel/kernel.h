@@ -48,12 +48,20 @@ int kernel_putchar(int);
 int kernel_puts(const char *);
 int kernel_printf(const char *, ...);
 
+char *convert_to_ascii(char *, int, ...);
+
 int gateA20(int);
 int get_code_end(void);
 int get_memsize(int);
 int get_mmap_entry(struct mmar_desc *, int);
 int getrtsecs(void);
 
+void init_memory(void);
+
 extern unsigned long int saved_mem_upper;
+extern unsigned long int saved_mem_lower;
+extern unsigned long int saved_mmap_addr;
+extern unsigned long int saved_mmap_length;
+
 
 #endif

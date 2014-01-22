@@ -32,8 +32,9 @@ int kernel_printf(const char *format, ...) {
 
 find_specifier:
 			switch (c) {
+				case 'l': c = *(format++); goto find_specifier;
 				case 'd': case 'x':	case 'X':  case 'u':
-					//*convert_to_ascii(str, c, *((unsigned long *)dataptr++)) = 0;
+					*convert_to_ascii(str, c, *((unsigned long *)dataptr++)) = 0;
 					width -= kernel_strlen(str);
 					if (width > 0) while(width--) {
 						kernel_putchar(pad);
