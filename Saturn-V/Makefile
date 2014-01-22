@@ -3,18 +3,18 @@ export ECHO := $(PWD)/tools/echo
 
 first:	$(ECHO) kestrel
 
-kestrel:	loader/start.com kernel/kernel.com
+kestrel:	S-IC/start.com S-II/kernel.com
 	$(ECHO) -ne "\000\000\000\000\000\000\000\000\000\000\000\000" | cat $^ - > $@
 
-loader/start.com:	kernel/kernel.com
-	make -C loader
+S-IC/start.com:	S-II/kernel.com
+	make -C S-IC
 
-kernel/kernel.com:
-	make -C kernel
+S-II/kernel.com:
+	make -C S-II
 
 clean:
-	make -C loader $@
-	make -C kernel $@
+	make -C S-IC $@
+	make -C S-II $@
 
 distclean:	clean
 	rm -f $(ECHO) kestrel
