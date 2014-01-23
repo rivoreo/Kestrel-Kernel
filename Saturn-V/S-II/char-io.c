@@ -114,6 +114,7 @@ int kernel_putchar(int c) {
 int kernel_getchar() {
 	int c = console_getkey();
 	if(c == -1) return -1;
-	kernel_putchar((char)c);
-	return (char)c;
+	c &= 0xff;
+	kernel_putchar(c);
+	return c;
 }

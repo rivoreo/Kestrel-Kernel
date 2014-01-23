@@ -22,7 +22,7 @@ void enter_shell() {
 
 		//int c = console_getkey();
 		int c = kernel_getchar();
-		putchar('\n');
+		kernel_putchar('\n');
 		kernel_printf("You pressed %d(%c)\n", c, c);
 		//kernel_panic("Not implemented", 38);
 	}
