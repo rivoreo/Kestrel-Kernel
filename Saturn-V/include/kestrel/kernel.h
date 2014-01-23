@@ -48,7 +48,9 @@ int kernel_close(int);
 int kernel_putchar(int);
 int kernel_puts(const char *);
 int kernel_printf(const char *, ...);
-size_t kernel_get_bios_time(void);
+int kernel_getchar(void);
+
+time_t kernel_get_bios_time(void);
 
 char *convert_to_ascii(char *, int, ...);
 

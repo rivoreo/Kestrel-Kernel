@@ -10,7 +10,7 @@
 
 #include <kestrel/kernel.h>
 
-size_t kernel_get_bios_time(void) {
+time_t kernel_get_bios_time(void) {
 	return get_bios_time();
 }
 

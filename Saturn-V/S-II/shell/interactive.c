@@ -11,8 +11,6 @@
 #include <kestrel/kernel.h>
 #include <kestrel/shell.h>
 
-int console_getkey(void);
-
 void enter_shell() {
 	char *prompt;
 
@@ -22,7 +20,10 @@ void enter_shell() {
 		prompt = "kestrel> ";
 		kernel_printf(prompt);
 
-		console_getkey();
-		kernel_panic("Not implemented", 38);
+		//int c = console_getkey();
+		int c = kernel_getchar();
+		putchar('\n');
+		kernel_printf("You pressed %d(%c)\n", c, c);
+		//kernel_panic("Not implemented", 38);
 	}
 }

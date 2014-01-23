@@ -12,6 +12,7 @@
 #include <kestrel/kernel.h>
 #include <kestrel/graphics.h>
 
+int console_getkey(void);
 void console_putchar(int);
 
 int kernel_printf(const char *format, ...) {
@@ -108,4 +109,11 @@ int kernel_putchar(int c) {
 #ifdef SUPPORT_GRAPHICS
 	}
 #endif
+}
+
+int kernel_getchar() {
+	int c = console_getkey();
+	if(c == -1) return -1;
+	kernel_putchar((char)c);
+	return (char)c;
 }
