@@ -9,18 +9,22 @@
 */
 
 #include <kestrel/kernel.h>
+#include <kestrel/graphics.h>
 #include <kestrel/shell.h>
 
 void cmain() {
 	kernel_puts("Kestrel " VERSION);
 	init_memory();
+#ifdef SUPPORT_GRAPHICS
+	//if(!graphics_init()) kernel_perror("graphics_init");
+#endif
 	if(use_config_file && kernel_access(config_file, R_OK) == 0) {
 		kernel_printf("Loading config file: %s ...\n", config_file);
 		run_script(config_file);
 	} else {
+		time_t biostime = kernel_get_bios_time();
+		kernel_printf("The current BIOS time is: %lu\r\n", biostime);
 		kernel_printf("\r\n");
-		size_t time = kernel_get_bios_time();
-		kernel_printf("The current BIOS time is:%d\r\n", time);
 		enter_shell();
 	}
 }

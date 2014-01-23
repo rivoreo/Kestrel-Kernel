@@ -58,9 +58,9 @@ static color_state graphics_color_state = COLOR_STATE_STANDARD;
 
 /* graphics local functions */
 static void graphics_cursor(int);
-static void graphics_setxy (int, int);
-static void graphics_scroll (void);
-//static int read_image (char *s);
+static void graphics_setxy(int, int);
+static void graphics_scroll(void);
+//static int read_image(char *s);
 
 /* FIXME: where do these really belong? */
 static inline void outb(unsigned short port, unsigned char val)
@@ -105,6 +105,7 @@ int graphics_init(void)
 	font8x16 = (unsigned char *) graphics_get_font(); /* code in asm.S */
 
 	graphics_inited = 1;
+	errno = 0;
 
 	/* make sure that the highlight color is set correctly */
 	graphics_highlight_color = ((graphics_normal_color >> 4) | 
@@ -116,8 +117,7 @@ int graphics_init(void)
 /* Leave graphics mode */
 void graphics_end(void)
 {
-	if (graphics_inited)
-	{
+	if (graphics_inited) {
 		set_videomode (saved_videomode);
 		graphics_inited = 0;
 	}
@@ -359,13 +359,11 @@ static void graphics_cursor(int set)
 	}
 
 	if (outline) for (i = 0; i < 16; i++) {
-			mask[i] = pat[i];
-			if (i < 15)
-				mask[i] |= pat[i+1];
-			if (i > 0)
-				mask[i] |= pat[i-1];
-			mask[i] |= (mask[i] << 1) | (mask[i] >> 1);
-			mask[i] = ~(mask[i]);
+		mask[i] = pat[i];
+		if (i < 15) mask[i] |= pat[i+1];
+		if (i > 0) mask[i] |= pat[i-1];
+		mask[i] |= (mask[i] << 1) | (mask[i] >> 1);
+		mask[i] = ~(mask[i]);
 	}
 
 	for (i = 0; i < 16; i++, offset += 80) {
