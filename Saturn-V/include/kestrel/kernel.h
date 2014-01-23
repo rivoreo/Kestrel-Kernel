@@ -33,6 +33,7 @@ void stop(void) __attribute__((__noreturn__));
 void panic(const char *) __attribute__((__noreturn__));
 void kernel_panic(const char *, int) __attribute__((__noreturn__));
 
+size_t get_bios_time(void);
 size_t kernel_strlen(const char *);
 char *kernel_strcpy(char *, const char *);
 void *kernel_memcpy(void *, const void *, size_t);
@@ -47,6 +48,7 @@ int kernel_close(int);
 int kernel_putchar(int);
 int kernel_puts(const char *);
 int kernel_printf(const char *, ...);
+size_t kernel_get_bios_time(void);
 
 int gateA20(int);
 int get_code_end(void);

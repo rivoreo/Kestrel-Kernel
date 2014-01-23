@@ -9,17 +9,8 @@
 */
 
 #include <kestrel/kernel.h>
-#include <kestrel/shell.h>
 
-void cmain() {
-	kernel_puts("Kestrel " VERSION);
-	if(use_config_file && kernel_access(config_file, R_OK) == 0) {
-		kernel_printf("Loading config file: %s ...\n", config_file);
-		run_script(config_file);
-	} else {
-		kernel_printf("\r\n");
-		size_t time = kernel_get_bios_time();
-		kernel_printf("time is:%d\r\n", time);
-		enter_shell();
-	}
+size_t kernel_get_bios_time(void) {
+	return get_bios_time();
 }
+

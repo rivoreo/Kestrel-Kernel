@@ -35,41 +35,40 @@ static int console_heading_color = A_NORMAL;
 static color_state console_color_state = COLOR_STATE_STANDARD;
 int blinking = 1;
 
-void
-console_setcolorstate (color_state state)
+void console_setcolorstate (color_state state)
 {
-  switch (state) {
-    case COLOR_STATE_STANDARD:
-      console_current_color = console_standard_color;
-      break;
-    case COLOR_STATE_NORMAL:
-      console_current_color = console_normal_color;
-      break;
-    case COLOR_STATE_HIGHLIGHT:
-      console_current_color = console_highlight_color;
-      break;
-    case COLOR_STATE_HELPTEXT:
-      console_current_color = console_helptext_color;
-      break;
-    case COLOR_STATE_HEADING:
-      console_current_color = console_heading_color;
-      break;
-    default:
-      console_current_color = console_standard_color;
-      break;
-  }
+	switch (state) {
+		case COLOR_STATE_STANDARD:
+			console_current_color = console_standard_color;
+			break;
+		case COLOR_STATE_NORMAL:
+			console_current_color = console_normal_color;
+			break;
+		case COLOR_STATE_HIGHLIGHT:
+			console_current_color = console_highlight_color;
+			break;
+		case COLOR_STATE_HELPTEXT:
+			console_current_color = console_helptext_color;
+			break;
+		case COLOR_STATE_HEADING:
+			console_current_color = console_heading_color;
+			break;
+		default:
+			console_current_color = console_standard_color;
+			break;
+	}
 
-  console_color_state = state;
+	console_color_state = state;
 }
 
-void
-console_setcolor (int normal_color, int highlight_color, int helptext_color, int heading_color)
+void console_setcolor (int normal_color, int highlight_color, int helptext_color, int heading_color)
 {
-  console_normal_color = normal_color;
-  console_highlight_color = highlight_color;
-  console_helptext_color = helptext_color;
-  console_heading_color = heading_color;
+	console_normal_color = normal_color;
+	console_highlight_color = highlight_color;
+	console_helptext_color = helptext_color;
+	console_heading_color = heading_color;
 
-  console_setcolorstate (console_color_state);
-  toggle_blinking ();
+	console_setcolorstate (console_color_state);
+	toggle_blinking ();
 }
+

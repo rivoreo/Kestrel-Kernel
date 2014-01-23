@@ -5290,6 +5290,7 @@ read_bios_time:
 	ret
 
 
+
 edd30_read_cdrom:
 #;return cf=0 success, cf=1 fail, ah = fail code
 #;will change all registers, including ES!!
@@ -9798,6 +9799,26 @@ ENTRY(toggle_blinking)
 	pop	%ebp
 	ret
 #endif /* ! STAGE1_5 */
+
+/*
+ * size_t get_bios_time(void)
+ */
+ENTRY(get_bios_time)
+
+	push	%ebp
+	call	EXT_C(prot_to_real)	/* enter real mode */
+
+	.code16
+
+	call	read_bios_time
+	movw	%ax, %bx		#; store initial timer in BX
+
+	DATA32	call	EXT_C(real_to_prot)
+	.code32
+
+	movw	%bx, %ax
+	pop	%ebp
+	ret
 
 
 /*
