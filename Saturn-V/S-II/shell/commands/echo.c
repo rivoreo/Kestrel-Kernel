@@ -42,7 +42,9 @@
  * expanded.  printf is now a builtin of netbsd's sh and csh.
  */
 
+#ifndef NULL
 #define NULL ((void *)0)
+#endif
 #define equal(A,B) !strcmp(A,B)
 
 int strcmp(const char *, const char *);

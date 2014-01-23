@@ -13,6 +13,7 @@
 
 void cmain() {
 	kernel_puts("Kestrel " VERSION);
+	init_memory();
 	if(use_config_file && kernel_access(config_file, R_OK) == 0) {
 		kernel_printf("Loading config file: %s ...\n", config_file);
 		run_script(config_file);
