@@ -49,6 +49,8 @@ int kernel_putchar(int);
 int kernel_puts(const char *);
 int kernel_printf(const char *, ...);
 int kernel_getchar(void);
+//int kernel_gets(char *, size_t);
+char *kernel_gets(char *, size_t);
 
 time_t kernel_get_bios_time(void);
 
@@ -62,10 +64,11 @@ int getrtsecs(void);
 
 void init_memory(void);
 
+extern void *heap;
+
 extern unsigned long int saved_mem_upper;
 extern unsigned long int saved_mem_lower;
 extern unsigned long int saved_mmap_addr;
 extern unsigned long int saved_mmap_length;
-
 
 #endif

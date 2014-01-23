@@ -11,10 +11,15 @@
 #ifndef _KESTREL_SHELL_H
 #define _KESTREL_SHELL_H
 
+#define COMMANDLINE_BUFFER 0x2000
+#define MAX_COMMAND 1600
+
+#ifndef ASM_FILE
 void enter_shell(void) __attribute__((__noreturn__));
 void run_script(const char *) __attribute__((__noreturn__));
 
 extern char config_file[];
 extern int use_config_file;
+#endif
 
 #endif

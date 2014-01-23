@@ -111,10 +111,43 @@ int kernel_putchar(int c) {
 #endif
 }
 
+#if 0
+int kernel_gets(char *buffer, size_t max_len) {
+	int r = 0;
+	while(max_len--) {
+		int c = kernel_getchar();
+		if(!c || c == -1 || c == '\r' || c == '\n') break;
+		*(buffer++) = c;
+		r++;
+	}
+	*buffer = 0;
+	return r;
+}
+#else
+char *kernel_gets(char *buffer, size_t max_len) {
+	int count = 0;
+	while(max_len--) {
+		int c = kernel_getchar();
+		//kernel_printf("gets debug: c = %d, count = %d\n", c, count);
+		if(!c || c == -1 || c == '\r' || c == '\n') break;
+		if(c == 8) {
+			if(count) {
+				kernel_printf("%c %c", c, c);
+				count--;
+			}
+			continue;
+		}
+		buffer[count++] = c;
+	}
+	buffer[count] = 0;
+	return buffer;
+}
+#endif
+
 int kernel_getchar() {
 	int c = console_getkey();
 	if(c == -1) return -1;
 	c &= 0xff;
-	kernel_putchar(c);
+	if(c != 8) kernel_putchar(c);
 	return c;
 }

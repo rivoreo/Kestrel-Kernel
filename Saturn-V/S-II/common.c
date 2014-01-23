@@ -1,5 +1,7 @@
 #include "shared.h"
 
+void *heap;
+
 unsigned long int saved_mem_lower;
 unsigned long int saved_mmap_addr;
 unsigned long int saved_mmap_length;
@@ -49,4 +51,7 @@ void init_memory() {
 	} else {
 		kernel_puts("Getting E801 memory...");
 	}*/
+
+	init_free_mem_start = addr;
+	heap = ((char *)init_free_mem_start) + 256 * sizeof (char *);
 }
