@@ -20,7 +20,7 @@ void cmain() {
 	} else {
 		kernel_printf("\r\n");
 		size_t time = kernel_get_bios_time();
-		kernel_printf("time is:%d\r\n", time);
+		kernel_printf("The current BIOS time is:%d\r\n", time);
 		enter_shell();
 	}
 }
