@@ -8,27 +8,15 @@
 	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 */
 
-#ifndef _KESTREL_SHELL_H
-#define _KESTREL_SHELL_H
+#include <kestrel/shell.h>
 
-#define COMMANDLINE_BUFFER 0x2000
-#define MAX_COMMAND 1600
+extern int echo_command(int, char **);
+extern int panic_command(int, char **);
 
-#ifndef ASM_FILE
-typedef struct {
-	char *name;
-	int (*exec)(int, char **);
-	char *usage;
-} command_t;
+static command_t c_echo = { "echo", echo_command, "echo [-ne] <args>" };
+static command_t c_panic = { "panic", panic_command, "panic <message> [<status>]" };
 
-void enter_shell(void) __attribute__((__noreturn__));
-void run_script(const char *) __attribute__((__noreturn__));
-command_t *find_command(char *);
-
-extern char config_file[];
-extern int use_config_file;
-
-extern command_t *command_table[];
-#endif
-
-#endif
+command_t *command_table[] = {
+	&c_echo,
+	&c_panic
+};

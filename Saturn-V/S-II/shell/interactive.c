@@ -12,18 +12,23 @@
 #include <kestrel/shell.h>
 
 void enter_shell() {
-	char *command = (char *)heap;
+	char *buffer = (char *)heap;
+	command_t *command;
 
 	kernel_printf("Kestrel Kernel build-in shell\n\n");
 
 	while(1) {
+		char *commandline = buffer;
 		kernel_printf("kestrel> ");
-
-		//int c = console_getkey();
-		//int c = kernel_getchar();
-		kernel_gets(command, MAX_COMMAND - 1);
+		kernel_gets(commandline, MAX_COMMAND - 1);
 		kernel_putchar('\n');
-		if(!*command) continue;
-		kernel_puts("command not found");
+		while(*commandline == ' ') commandline++;
+		if(!*commandline) continue;
+		command = find_command(commandline);
+		if(!command) {
+			kernel_puts("command not found");
+			continue;
+		}
+		kernel_printf("Failed to exec command %s, Not implemented\n", commandline);
 	}
 }

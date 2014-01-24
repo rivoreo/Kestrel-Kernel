@@ -26,6 +26,7 @@ OBJS = \
 	panic.o \
 	string.o \
 	time.o \
+	shell/command_table.o \
 	shell/common.o \
 	shell/interactive.o \
 	shell/script.o

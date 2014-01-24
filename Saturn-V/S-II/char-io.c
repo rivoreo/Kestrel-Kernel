@@ -93,7 +93,6 @@ int kernel_puts(const char *s) {
 		if(kernel_putchar(*(s++)) < 0) return -1;
 		r++;
 	}
-	kernel_putchar('\r');
 	kernel_putchar('\n');
 	return r;
 }

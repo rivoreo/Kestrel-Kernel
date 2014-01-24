@@ -13,6 +13,10 @@
 
 #include <kestrel/types.h>
 
+#ifndef NULL
+#define NULL ((void *)0)
+#endif
+
 /* Values for the second argument to access.
    These may be OR'd together.  */
 #define	R_OK	4		/* Test for read permission.  */
@@ -35,6 +39,7 @@ void kernel_panic(const char *, int) __attribute__((__noreturn__));
 
 size_t get_bios_time(void);
 size_t kernel_strlen(const char *);
+int kernel_strcmp(const char *, const char *);
 char *kernel_strcpy(char *, const char *);
 void *kernel_memcpy(void *, const void *, size_t);
 
