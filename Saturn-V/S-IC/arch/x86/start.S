@@ -85,8 +85,8 @@ _start1:
 
 	. = _start1 + 0x43
 
-
 1:
+	nop
 	popw	%bx			/* Instruction Pointer of 1b */
 
 	subw	$(1b - _start1), %bx	/* CS:BX=_start1 */
@@ -107,7 +107,7 @@ _start1:
 	lret
 	. = . - (. - _start1) / 0x80
 1:
-	addw	$((grldr_signature - _start1 + 4 + KERNEL_SIZE - 4) >> 4), %bx
+	addw	$((loader_signature - _start1 + 4 + KERNEL_SIZE - 4) >> 4), %bx
 	movw	%bx, %ds
 
 	cmpl	$0xCE1A02B0, ((KERNEL_SIZE - 4) & 0x0F)
@@ -230,10 +230,11 @@ _start1:
 
 disk_serial_number_structure:
 
-	movw	$(grldr_signature - _start1), %bx	/* BX=0x1FFC */
+	movw	$(loader_signature - _start1), %bx	/* BX=0x1FFC */
 
 	/* if the boot loader has loaded more than one sector, we use them */
-	movl	$0xAA555247, %eax	/* "GR" 0x55 0xAA */
+//	movl	$0xAA555247, %eax	/* "GR" 0x55 0xAA */
+	movl	$0xaa55454b, %eax		# "KE" 0x55 0xaa
 
 disk_serial_number_structure_end:
 
@@ -914,7 +915,7 @@ load_the_rest:
 	popw	%bx		/* BX=CS=old_DS=load_segment */
 //	movw	%bx, %es
 	/* 6144 = 0x1800 = 3 sectors > 4KB, this is for the additional 4KB-preset-menu at the end of grldr */
-	movw	$((grldr_signature - _start1 + 4 + KERNEL_SIZE - 1 + 6144) / 2048), %cx	/* sectors to load */
+	movw	$((loader_signature - _start1 + 4 + KERNEL_SIZE - 1 + 6144) / 2048), %cx	/* sectors to load */
 1:
 	incl	%eax		/* next sector */
 	addw	$0x0080, %bx	/* buffer segment */
@@ -932,7 +933,7 @@ load_the_rest:
 //	subl	$((grldr_signature - _start1 + 4 + KERNEL_SIZE - 1 + 6144) / 2048), %eax
 
 	/* check the ending signature */
-	cmpl	$0xCE1A02B0, ((grldr_signature - _start1 + 4 + KERNEL_SIZE - 1) % 2048) + 13
+	cmpl	$0xCE1A02B0, ((loader_signature - _start1 + 4 + KERNEL_SIZE - 1) % 2048) + 13
 	jne	not_grldr
 #;	je	grldr_real_start	/* yes. boot it! */
 
@@ -5063,7 +5064,8 @@ hex_out:
 	. = Entry_nt + 0x7fc
 
 nt_sector_mark:
-	.long	0x42555247		// "GRUB"
+//	.long	0x42555247		// "GRUB"
+	.long	0x492d53		# "S-I"
 //----------------- end  of "ntfsbs.S"-----------------------
 
 	. = _start1 + 0x1200
@@ -7390,7 +7392,8 @@ geometry_tune:
 
 	/* check if the code is loaded completely */
 
-	cmpl	$0xAA555247, (grldr_signature - _start1) /* "GR" 0x55 0xAA */
+//	cmpl	$0xAA555247, (grldr_signature - _start1) /* "GR" 0x55 0xAA */
+	cmpl	$0xaa55454b, (loader_signature - _start1)		# "KE" 0x55 0xaa
 	je	real_geometry_tune
 
 #endif
@@ -8161,8 +8164,9 @@ cross_track:
 
 	.word   4
 
-grldr_signature:
-	.byte	0x47, 0x52, 0x55, 0xaa	/* signature for helper */
+//grldr_signature:
+loader_signature:
+	.byte	0x4b, 0x45, 0x55, 0xaa		# signature for helper
 
 	.align	0x200
 

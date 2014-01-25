@@ -227,15 +227,16 @@ real_codestart:
 
 	movw	%ax, %ds		/* DS=current int13 code segment */
 
-	/* check our int13 signature "$INT13SFGRUB4DOS" */
+#if 1	// need to check?
 	cmpl	$0x544E4924, 0x103	/* $INT */
 	jnz	2f
 	cmpl	$0x46533331, 0x107	/* 13SF */
 	jnz	2f
-	cmpl	$0x42555247, 0x10B	/* GRUB */
-	jnz	2f
-	cmpl	$0x534F4434, 0x10F	/* 4DOS */
-	jnz	2f
+	cmpl	$0x5453454b, 0x10B	/* KEST */
+	jnz	1f
+	cmpl	$0x314c4552, 0x10F	/* REL1 */
+	jnz	1f
+#endif
 
 	movl	(ROM_int13 - int13_handler), %eax	/* 0x1C=ROM int 13 */
 	cmpl	$0x5A000000, %eax	// cmpl	$0x9A000000, %eax
@@ -946,11 +947,11 @@ ENTRY(stop_floppy)
 	ret
 
 /*
- * grub_reboot()
+ * kernel_reboot()
  *
  * Reboot the system. At the moment, rely on BIOS.
  */
-ENTRY(grub_reboot)
+ENTRY(kernel_reboot)
 	call	EXT_C(prot_to_real)
 
 	.code16
@@ -966,12 +967,12 @@ ENTRY(grub_reboot)
 	.code32
 
 /*
- * grub_halt(int no_apm)
+ * kernel_halt(int no_apm)
  *
  * Halt the system, using APM if possible. If NO_APM is true, don't use
  * APM even if it is available.
  */
-ENTRY(grub_halt)
+ENTRY(kernel_halt)
 	/* get the argument */
 	movl	4(%esp), %eax
 
@@ -1587,14 +1588,13 @@ ENTRY(unset_int13_handler)
 	movl	%eax, %edi
 	shrl	$12, %edi	/* segment base address */
 
-	/* check our int13 signature "$INT13SFGRUB4DOS" */
 	cmpl	$0x544E4924, 0x103(%edi)	/* $INT */
 	jnz	1f
 	cmpl	$0x46533331, 0x107(%edi)	/* 13SF */
 	jnz	1f
-	cmpl	$0x42555247, 0x10B(%edi)	/* GRUB */
+	cmpl	$0x5453454b, 0x10B(%edi)	/* KEST */
 	jnz	1f
-	cmpl	$0x534F4434, 0x10F(%edi)	/* 4DOS */
+	cmpl	$0x314c4552, 0x10F(%edi)	/* REL1 */
 	jnz	1f
 
 	//cmpl	$0x9A000000, 0x1C(%edi)		/* old int 13 */
@@ -1671,7 +1671,7 @@ ENTRY(min_cdrom_id)	.byte	0xE0
 	. = int13_handler + 0x4
 
 	/* Signature */
-	.ascii	"G4DS"		# Please don't use this signature any longer.
+	.ascii	"S-II"		# Please don't use this signature any longer.
 				# This field might be used for other purposes.
 				# Use signature at offset 0x103 instead.
 
@@ -1720,8 +1720,8 @@ ENTRY(hooked_drive_map)
 	/* ----------------- SafeMBRHook structure begin ----------------- */
 
 	.ascii	"$INT13SF"		/* Win9x use this! Don't touch! */
-
-	.ascii	"GRUB4DOS"		/* 8-byte Vender ID */
+	.ascii	"KESTREL1"
+//	.ascii	"GRUB4DOS"		/* 8-byte Vender ID */
 
 	. = int13_handler + 0x113
 
@@ -2978,7 +2978,7 @@ real_int13_service:
 	jmp	*%cs:(int13_ret_IP - int13_handler)	//ret
 
 a20_failure:
-	.ascii	"\r\ngrub4dos: A20 failure on memdrive=0x%X.\r\n\0"
+	.ascii	"\r\nA20 failure on memdrive=0x%X.\r\n\0"
 
 1:
 	/* CF=1 means A20 was originally enabled. */
@@ -9388,7 +9388,7 @@ ENTRY(gfx_setup_menu_v2)
  */
 #endif /* SUPPORT_GFX */
 
-
+#if 0 
 /*
  * grub2_gate_a20(int on)
  *
@@ -9539,6 +9539,7 @@ gate_a20_check_state:
 	popl	%ecx
 	popl	%ebx
 	ret
+#endif
 
 /*
  * int gateA20(int linear)

@@ -36,6 +36,7 @@ struct mmar_desc
 void stop(void) __attribute__((__noreturn__));
 void panic(const char *) __attribute__((__noreturn__));
 void kernel_panic(const char *, int) __attribute__((__noreturn__));
+void kernel_reboot(void) __attribute__((__noreturn__));
 
 size_t get_bios_time(void);
 size_t kernel_strlen(const char *);
