@@ -65,6 +65,8 @@
 #define putchar kernel_putchar
 #define puts kernel_puts
 #define printf kernel_printf
+#undef getchar
+#define getchar kernel_getchar
 
 
 /* see typedef gfx_data_t below */

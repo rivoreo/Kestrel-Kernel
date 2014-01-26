@@ -14,7 +14,7 @@
 void kernel_panic(const char *msg, int status) {
 	kernel_printf("\nkernel panic: %s", msg);
 	if(status) kernel_printf(" (%d)", status);
-	kernel_printf("\r\n");
+	kernel_putchar('\n');
 	stop();
 	while(1);
 }

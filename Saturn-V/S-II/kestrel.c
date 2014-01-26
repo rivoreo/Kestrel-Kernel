@@ -25,10 +25,10 @@ void cmain() {
 	} else {
 		struct tm time;
 		gettime(&time);
-		kernel_printf("The current UTC time is:\r\n"
-				"%d/%d/%d\r\n%d:%d:%d"
+		kernel_printf("The current UTC time is:\n"
+				"%d/%d/%d\n%d:%d:%d\n"
 				, time.tm_year, time.tm_mon,time.tm_mday,time.tm_hour,time.tm_min,time.tm_sec);
-		kernel_printf("\r\n");
+		kernel_putchar('\n');
 		enter_shell();
 	}
 }

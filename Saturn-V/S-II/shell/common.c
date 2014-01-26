@@ -21,13 +21,12 @@ command_t *find_command(char *command) {
 
 		if(r == 0) {
 			/* Found */
-			*ptr = c;
+			//*ptr = c;		// keep the command without arguments
 			return *builtin;
 		} else if(r < 0) break;
 	}
 
 	/* Not found */
-	//errnum = ERR_UNRECOGNIZED;
-	*ptr = c;
+	//*ptr = c;		// keep the command without arguments
 	return NULL;
 }
