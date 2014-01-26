@@ -27,12 +27,16 @@ void enter_shell() {
 		command = find_command(commandline);
 		if(!command) {
 			kernel_printf("%s: command not found\n", commandline);
-			//kernel_puts("command not found");
+			last_status = 127;
 			continue;
 		}
-		//int _argc;
-		//char **_argv;
-		last_status = command->exec(0, 0);
+		int _argc;
+		char **_argv;
+		_argc = 1;
+		_argv = heap + MAX_COMMAND;
+		_argv[0] = commandline;
+		_argv[1] = NULL;
+		last_status = command->exec(_argc, _argv);
 		//kernel_printf("last_status = %d\n", last_status);
 	}
 }

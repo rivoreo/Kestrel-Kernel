@@ -15,7 +15,9 @@ int use_config_file = 1;
 int last_status = 0;
 
 /*	Process the command line
+
 	Seek out the command_table whose command name is command;
+	and convert the command line to multi string (ex.: "echo\0-n Hello World\0\0").
 
 	return value: if found, returns a pointer to type command_t, or NULL if not found.
 */
@@ -26,16 +28,22 @@ command_t *find_command(char *command) {
 
 	/* Find the first space and terminate the command name.  */
 	ptr = command;
-	while(*ptr != ' ' && *ptr != '\t') {
+	while(1) {
 		if(!*ptr) {
-			ptr[1] = 0;
+			ptr[1] = ptr[0] = 0;
+			break;
+		}
+		if(*ptr == ' ' || *ptr == '\t') {
+			char *p2 = ptr;
+			while(*++p2);
+			*p2 = *ptr = 0;
 			break;
 		}
 		ptr++;
 	}
 
 	//c = *ptr;
-	*ptr = 0;
+	//*ptr = 0;
 
 	/*   */
 	for(builtin = command_table; *builtin != 0; builtin++) {

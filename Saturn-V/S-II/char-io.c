@@ -64,6 +64,7 @@ find_specifier:
 						r++;
 					}
 					ptr = (char *)*(dataptr++);
+					if(!ptr) ptr = "(null)";
 					while ((c = *(ptr++)) != 0) {
 						kernel_putchar (c);
 						r++;

@@ -9,22 +9,11 @@
 */
 
 #include <kestrel/kernel.h>
-#include <kestrel/shell.h>
 
-extern int argstest_command(int, char **);
-extern int echo_command(int, char **);
-extern int panic_command(int, char **);
-extern int date_command(int, char**);
-
-static command_t c_argstest = { "argstest", argstest_command, "argstest [<args>]" };
-static command_t c_date = { "date", date_command, "date [<option>] ... [+<format>]" };
-static command_t c_echo = { "echo", echo_command, "echo [-ne] <args>" };
-static command_t c_panic = { "panic", panic_command, "panic <message> [<status>]" };
-
-command_t *command_table[] = {
-	&c_argstest,
-	&c_date,
-	&c_echo,
-	&c_panic,
-	NULL
-};
+int argstest_command(int argc, char **argv) {
+	int i;
+	puts("PC GO Program Debug");
+	printf("argc: %d\n", argc);
+	for(i=0; !i || argv[i-1]; i++) printf("argv[%d]: %s\n", i, argv[i]);
+	return 0;
+}

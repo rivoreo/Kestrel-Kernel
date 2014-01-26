@@ -5,9 +5,10 @@ endif
 CFLAGS = -I../../../include --include ../../../version.h --include ../../shared.h -O1 -Wall
 
 COMMANDS = \
+	argstest.o \
+	date.o \
 	echo.o \
-	panic.o \
-	date.o
+	panic.o
 
 commands.a:	$(COMMANDS)
 	$(AR) r $@ $^
