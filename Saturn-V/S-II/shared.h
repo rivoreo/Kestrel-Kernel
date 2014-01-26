@@ -5,9 +5,9 @@
 #define RAW_ADDR(x) (x)
 #define RAW_SEG(x) (x)
 
-#define MAXINT 0xffffffff
+#include <kestrel/shell.h>
 
-#define COMMANDLINE_BUFFER RAW_ADDR(0x2000)
+#define MAXINT 0xffffffff
 
 /* The size of the drive map.  */
 #define DRIVE_MAP_SIZE		8
@@ -106,7 +106,6 @@
 #include <kestrel/errno.h>
 #include <kestrel/graphics.h>
 #include <kestrel/kernel.h>
-#include <kestrel/shell.h>
 #include <kestrel/types.h>
 #endif
 

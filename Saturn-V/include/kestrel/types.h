@@ -11,6 +11,9 @@
 #ifndef _KESTREL_TYPES_H
 #define _KESTREL_TYPES_H
 
+#define isspace(c) ((c) == ' ' || (c) == '\t')
+
 typedef unsigned int size_t;
+typedef unsigned long int time_t;
 
 #endif

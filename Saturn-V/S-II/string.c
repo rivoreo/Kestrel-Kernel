@@ -9,11 +9,22 @@
 */
 
 #include <kestrel/types.h>
+//#include <ctype.h>
 
 size_t kernel_strlen(const char *s) {
 	size_t len = 0;
 	while(*(s++)) len++;
 	return len;
+}
+
+int kernel_strcmp(const char *s1, const char *s2) {
+	while(*s1 || *s2) {
+		if(*s1 < *s2) return -1;
+		else if(*s1 > *s2) return 1;
+		s1++;
+		s2++;
+	}
+	return 0;
 }
 
 void *kernel_memcpy(void *to, const void *from, size_t n) {
@@ -41,6 +52,28 @@ void *kernel_memcpy(void *to, const void *from, size_t n) {
 	while(n--) *d++ = *s++;
 	return to;
 #endif
+}
+
+long int kernel_atol(const char *s) {
+	int c;			/* current char */
+	long int total;		/* current total */
+	int sign;		/* if '-', then negative, otherwise positive */
+
+	while(isspace((unsigned char)*s)) s++;
+	c = *s++;
+	sign = c;		/* save sign indication */
+	if (c == '-' || c == '+') c = *s++;
+	total = 0;
+	while (c >= '0' && c <= '9') {
+		total = 10 * total + (c - '0');
+		c = *s++;
+	}
+	if (sign == '-') return -total;
+	return total;
+}
+
+int kernel_atoi(const char *s) {
+	return (int)kernel_atol(s);
 }
 
 char *convert_to_ascii(char *buf, int c, ...) {

@@ -9,8 +9,11 @@
 */
 
 #include <kestrel/kernel.h>
+<<<<<<< HEAD
 #include <kestrel/time.h>
+=======
 #include <kestrel/graphics.h>
+>>>>>>> 0da21468087cb22a45efb1718c30e7a7f44427cf
 #include <kestrel/shell.h>
 
 void cmain() {
@@ -23,12 +26,15 @@ void cmain() {
 		kernel_printf("Loading config file: %s ...\n", config_file);
 		run_script(config_file);
 	} else {
+		time_t biostime = kernel_get_bios_time();
+		kernel_printf("The current BIOS time is: %lu\r\n", biostime);
+		kernel_printf("\r\n");
+<<<<<<< HEAD
 		struct tm *time;
 		gettime(time);
-		kernel_printf("The current UTC time is:\r\n"
-				"%d/%d/%d\r\n%d:%d:%d"
-				, time->tm_year, time->tm_mon,time->tm_mday,time->tm_hour,time->tm_min,time->tm_sec);
-		kernel_printf("\r\n");
+		kernel_printf("The current BIOS year is:%d\r\n", time->tm_mon);
+=======
+>>>>>>> 0da21468087cb22a45efb1718c30e7a7f44427cf
 		enter_shell();
 	}
 }

@@ -1,7 +1,16 @@
+/*	A part of kestrel
+	Kestrel Kernel Project
+	Copyright 2007-2014 BMY-Soft
+	Copyright 2007-2014 PC GO Ld.
+
+	This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+*/
+
 #ifndef _TIME_H
 #define _TIME_H
 
-typedef long time_t;		// 从GMT 1970 年1 月1 日开始的以秒计数的时间（日历时间）。
 #endif
 
 #define CLOCKS_PER_SEC 100	// 系统时钟滴答频率，100HZ。

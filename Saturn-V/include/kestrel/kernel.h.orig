@@ -38,6 +38,7 @@ void panic(const char *) __attribute__((__noreturn__));
 void kernel_panic(const char *, int) __attribute__((__noreturn__));
 void kernel_reboot(void) __attribute__((__noreturn__));
 
+int get_bios_time(void);
 size_t kernel_strlen(const char *);
 int kernel_strcmp(const char *, const char *);
 char *kernel_strcpy(char *, const char *);
@@ -53,11 +54,15 @@ int kernel_close(int);
 int kernel_putchar(int);
 int kernel_puts(const char *);
 int kernel_printf(const char *, ...);
+<<<<<<< HEAD
+int kernel_get_bios_time(void);
+=======
 int kernel_getchar(void);
 //int kernel_gets(char *, size_t);
 char *kernel_gets(char *, size_t);
 
 time_t kernel_get_bios_time(void);
+>>>>>>> 0da21468087cb22a45efb1718c30e7a7f44427cf
 
 char *convert_to_ascii(char *, int, ...);
 

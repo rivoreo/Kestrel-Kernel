@@ -25,7 +25,8 @@ OBJS = \
 	kestrel.o \
 	panic.o \
 	string.o \
-	time.o\
+	time.o \
+	shell/command_table.o \
 	shell/common.o \
 	shell/interactive.o \
 	shell/script.o
