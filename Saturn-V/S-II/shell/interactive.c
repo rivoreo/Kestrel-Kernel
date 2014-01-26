@@ -26,7 +26,8 @@ void enter_shell() {
 		if(!*commandline) continue;
 		command = find_command(commandline);
 		if(!command) {
-			kernel_puts("command not found");
+			kernel_printf("%s: command not found\r\n", commandline);
+			//kernel_puts("command not found");
 			continue;
 		}
 		kernel_printf("Failed to exec command %s, Not implemented\n", commandline);

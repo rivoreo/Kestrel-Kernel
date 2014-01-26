@@ -6,7 +6,8 @@ CFLAGS = -I../../../include --include ../../../version.h --include ../../shared.
 
 COMMANDS = \
 	echo.o \
-	panic.o
+	panic.o \
+	date.o
 
 commands.a:	$(COMMANDS)
 	$(AR) r $@ $^
