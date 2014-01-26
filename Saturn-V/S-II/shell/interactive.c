@@ -10,6 +10,46 @@
 
 #include <kestrel/kernel.h>
 #include <kestrel/shell.h>
+#include <mstring.h>
+
+/*
+int putms_raw(mstr s){
+	int r = 0;
+	while(1){
+		switch(*s){
+		case 0:
+			kernel_printf("\\0");
+			break;
+		case '\a':
+			kernel_printf("\\a");
+			break;
+		case '\b':
+			kernel_printf("\\b");
+			break;
+		case '\f':
+			kernel_printf("\\f");
+			break;
+		case '\n':
+			kernel_printf("\\n");
+			break;
+		case '\r':
+			kernel_printf("\\r");
+			break;
+		case '\t':
+			kernel_printf("\\t");
+			break;
+		case '\v':
+			kernel_printf("\\v");
+			break;
+		default:
+			kernel_putchar(*s);
+		}
+		r++;
+		if(r > 1 && !*(s-1) && !*s) return r;
+		s++;
+	}
+	//return r;
+}*/
 
 void enter_shell() {
 	char *buffer = (char *)heap;
@@ -25,6 +65,8 @@ void enter_shell() {
 		while(*commandline == ' ') commandline++;
 		if(!*commandline) continue;
 		command = find_command(commandline);
+		//putms_raw(commandline);
+		//kernel_putchar('\n');
 		if(!command) {
 			kernel_printf("%s: command not found\n", commandline);
 			last_status = 127;
@@ -32,10 +74,14 @@ void enter_shell() {
 		}
 		int _argc;
 		char **_argv;
-		_argc = 1;
-		_argv = heap + MAX_COMMAND;
-		_argv[0] = commandline;
-		_argv[1] = NULL;
+		//_argc = 1;
+		_argv = (char **)heap + MAX_COMMAND;
+		//_argv[0] = commandline;
+		//_argv[1] = NULL;
+		int i = mstrcount(commandline);
+		_argc = i;
+		_argv[i--] = NULL;
+		for(; i >= 0; i--) _argv[i] = mstrindex(commandline, i + 1);
 		last_status = command->exec(_argc, _argv);
 		//kernel_printf("last_status = %d\n", last_status);
 	}

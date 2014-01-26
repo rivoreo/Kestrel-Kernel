@@ -14,10 +14,31 @@
 int use_config_file = 1;
 int last_status = 0;
 
+static void commandline_to_multistring(char *s) {
+	char *space = " \t\r\n";
+	//char *quote = "\"\'";
+	char f = 1;
+	while(1) {
+		char *q;
+		if(f) for(q = space; *q; q++) if(*s == *q) {
+			*s = 0;
+			break;
+		}
+		//for(q = quote; *q; q++) if(*s == *q) {
+		if(*s == '\"') {
+			f ^= 1;
+			kernel_memmove(s, s + 1, kernel_strlen(s) + 1);
+			continue;
+		}
+		if(!*++s) break;
+	}
+	s[1] = 0;
+}
+
 /*	Process the command line
 
 	Seek out the command_table whose command name is command;
-	and convert the command line to multi string (ex.: "echo\0-n Hello World\0\0").
+	and convert the command line to multi string (ex.: "echo\0-n\0Hello\0World\0\0").
 
 	return value: if found, returns a pointer to type command_t, or NULL if not found.
 */
@@ -34,9 +55,13 @@ command_t *find_command(char *command) {
 			break;
 		}
 		if(*ptr == ' ' || *ptr == '\t') {
+/*
 			char *p2 = ptr;
 			while(*++p2);
 			*p2 = *ptr = 0;
+*/
+			*ptr++ = 0;
+			commandline_to_multistring(ptr);
 			break;
 		}
 		ptr++;

@@ -44,13 +44,66 @@ void *kernel_memcpy(void *to, const void *from, size_t n) {
 			"movsb\n"
 			"2:"
 			: "=&c" (d0), "=&D" (d1), "=&S" (d2)
-			:"0" (n/4), "q" (n),"1" ((long) to),"2" ((long) from)
+			:"0" (n/4), "q" (n),"1" ((long int)to),"2" ((long int)from)
 			: "memory");
-	return to;
 #else
 	char *d = (char *)to, *s = (char *)from;
 	while(n--) *d++ = *s++;
+#endif
 	return to;
+}
+
+void *kernel_memmove (void *to, const void *from, size_t len) {
+#ifdef __i386__
+	/* This assembly code is stolen from
+	   linux-2.2.2/include/asm-i386/string.h. This is not very fast
+	   but compact.  */
+	int d0, d1, d2;
+	if (to < from) {
+		asm volatile("cld\n\t"
+				"rep\n\t"
+				"movsb"
+				: "=&c" (d0), "=&S" (d1), "=&D" (d2)
+				: "0" (len),"1" (from),"2" (to)
+				: "memory");
+	} else {
+		asm volatile("std\n\t"
+				"rep\n\t"
+				"movsb\n\t"
+				"cld"
+				: "=&c" (d0), "=&S" (d1), "=&D" (d2)
+				: "0" (len),
+				"1" (len - 1 + (const char *)from),
+				"2" (len - 1 + (char *)to)
+				: "memory");
+	}
+	return to;
+#else
+	void *r = to;
+	if (to <= from || (char *)to >= ((char *)from + len)) {
+		/*
+		 * Non-Overlapping Buffers
+		 * copy from lower addresses to higher addresses
+		 */
+		while (len--) {
+			*(char *)to = *(char *)from;
+			to = (char *)to + 1;
+			from = (char *)from + 1;
+		}
+	} else {
+		/*
+		 * Overlapping Buffers
+		 * copy from higher addresses to lower addresses
+		 */
+		to = (char *)to + len - 1;
+		from = (char *)from + len - 1;
+		while (len--) {
+			*(char *)to = *(char *)from;
+			to = (char *)to - 1;
+			from = (char *)from - 1;
+		}
+	}
+	return r;
 #endif
 }
 

@@ -42,6 +42,7 @@ size_t kernel_strlen(const char *);
 int kernel_strcmp(const char *, const char *);
 char *kernel_strcpy(char *, const char *);
 void *kernel_memcpy(void *, const void *, size_t);
+void *kernel_memmove(void *, const void *, size_t);
 
 int kernel_atoi(const char *);
 long int kernel_atol(const char *);
