@@ -30,6 +30,9 @@ void enter_shell() {
 			//kernel_puts("command not found");
 			continue;
 		}
-		kernel_printf("Failed to exec command %s, Not implemented\n", commandline);
+		//int _argc;
+		//char **_argv;
+		last_status = command->exec(0, 0);
+		//kernel_printf("last_status = %d\n", last_status);
 	}
 }

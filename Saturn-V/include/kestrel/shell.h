@@ -27,6 +27,7 @@ command_t *find_command(char *);
 
 extern char config_file[];
 extern int use_config_file;
+extern int last_status;
 
 extern command_t *command_table[];
 #endif
