@@ -16,4 +16,6 @@
 typedef unsigned int size_t;
 typedef unsigned long int time_t;
 
+typedef long int clock_t;		// 从进程开始系统经过的时钟滴答数。
+
 #endif

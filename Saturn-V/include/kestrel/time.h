@@ -8,19 +8,16 @@
 	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 */
 
-#ifndef _TIME_H
-#define _TIME_H
+#ifndef _KESTREL_TIME_H
+#define _KESTREL_TIME_H
 
-#endif
+#include <kestrel/types.h>
 
 #define CLOCKS_PER_SEC 100	// 系统时钟滴答频率，100HZ。
 #define CMOS_READ(addr) ({outb_p(0x80|addr,0x70); inb_p(0x71);})
 #define BCD_TO_BIN(val) ((val)=((val)&15) + ((val)>>4)*10)	// 将BCD 码转换成数字。
 
-typedef long clock_t;		// 从进程开始系统经过的时钟滴答数。
-
-struct tm
-{
+struct tm {
   int tm_sec;			// 秒数 [0，59]。
   int tm_min;			// 分钟数 [ 0，59]。
   int tm_hour;			// 小时数 [0，59]。
@@ -34,3 +31,4 @@ struct tm
 
 int gettime(struct tm *);
 
+#endif

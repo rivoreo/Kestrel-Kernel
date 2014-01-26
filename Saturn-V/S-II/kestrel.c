@@ -23,11 +23,11 @@ void cmain() {
 		kernel_printf("Loading config file: %s ...\n", config_file);
 		run_script(config_file);
 	} else {
-		struct tm *time;
-		gettime(time);
+		struct tm time;
+		gettime(&time);
 		kernel_printf("The current UTC time is:\r\n"
 				"%d/%d/%d\r\n%d:%d:%d"
-				, time->tm_year, time->tm_mon,time->tm_mday,time->tm_hour,time->tm_min,time->tm_sec);
+				, time.tm_year, time.tm_mon,time.tm_mday,time.tm_hour,time.tm_min,time.tm_sec);
 		kernel_printf("\r\n");
 		enter_shell();
 	}
