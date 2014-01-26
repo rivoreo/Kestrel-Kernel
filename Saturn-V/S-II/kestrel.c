@@ -9,6 +9,7 @@
 */
 
 #include <kestrel/kernel.h>
+#include <kestrel/time.h>
 #include <kestrel/shell.h>
 
 void cmain() {
@@ -19,8 +20,9 @@ void cmain() {
 		run_script(config_file);
 	} else {
 		kernel_printf("\r\n");
-		size_t time = kernel_get_bios_time();
-		kernel_printf("The current BIOS time is:%d\r\n", time);
+		struct tm *time;
+		gettime(time);
+		kernel_printf("The current BIOS year is:%d\r\n", time->tm_mon);
 		enter_shell();
 	}
 }

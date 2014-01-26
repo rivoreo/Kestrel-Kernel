@@ -9801,7 +9801,7 @@ ENTRY(toggle_blinking)
 #endif /* ! STAGE1_5 */
 
 /*
- * size_t get_bios_time(void)
+ * int get_bios_time(void)
  */
 ENTRY(get_bios_time)
 
@@ -9810,9 +9810,20 @@ ENTRY(get_bios_time)
 
 	.code16
 
-	call	read_bios_time
-	movw	%ax, %bx		#; store initial timer in BX
-
+	/*call	read_bios_time*/
+	movb	$0x02, %ah
+	int	$0x1a
+/*	movb	%ch, %bh		#; store initial timer in BX
+	xorb	%bl, %bl
+*/
+	movb	%ch, %ah  
+	movb	%ch, %al  
+	andb	$0x0f0, %al  
+	shrb	$4, %al  
+	addb	$0, %al  
+	addb	$0xf, %ah  
+	addb	$0, %ah 
+	movb	%ax, %bx
 	DATA32	call	EXT_C(real_to_prot)
 	.code32
 
