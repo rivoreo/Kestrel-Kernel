@@ -24,7 +24,6 @@ static void commandline_to_multistring(char *s) {
 			*s = 0;
 			break;
 		}
-		//for(q = quote; *q; q++) if(*s == *q) {
 		if(*s == '\"') {
 			f ^= 1;
 			kernel_memmove(s, s + 1, kernel_strlen(s) + 1);
@@ -44,7 +43,6 @@ static void commandline_to_multistring(char *s) {
 */
 command_t *find_command(char *command) {
 	char *ptr;
-	//char c;
 	command_t **builtin;
 
 	/* Find the first space and terminate the command name.  */
@@ -55,11 +53,6 @@ command_t *find_command(char *command) {
 			break;
 		}
 		if(*ptr == ' ' || *ptr == '\t') {
-/*
-			char *p2 = ptr;
-			while(*++p2);
-			*p2 = *ptr = 0;
-*/
 			*ptr++ = 0;
 			commandline_to_multistring(ptr);
 			break;
@@ -67,21 +60,15 @@ command_t *find_command(char *command) {
 		ptr++;
 	}
 
-	//c = *ptr;
-	//*ptr = 0;
-
-	/*   */
 	for(builtin = command_table; *builtin != 0; builtin++) {
 		int r = kernel_strcmp(command, (*builtin)->name);
 
 		if(r == 0) {
 			/* Found */
-			//*ptr = c;		// keep the command without arguments
 			return *builtin;
 		} else if(r < 0) break;
 	}
 
 	/* Not found */
-	//*ptr = c;		// keep the command without arguments
 	return NULL;
 }

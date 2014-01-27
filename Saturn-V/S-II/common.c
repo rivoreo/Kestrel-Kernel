@@ -42,7 +42,6 @@ void init_memory() {
 		addr += *(unsigned long int *)addr + 4;
 	} while(count);
 
-	//kernel_printf("debug: saved_mmap_length = %lu\n", saved_mmap_length);
 /*
 	if(saved_mmap_length) {
 		unsigned long long int max_addr;

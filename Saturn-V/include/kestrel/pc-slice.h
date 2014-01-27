@@ -17,8 +17,8 @@
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#ifndef _PC_SLICE_H
-#define _PC_SLICE_H
+#ifndef _KESTREL_PC_SLICE_H
+#define _KESTREL_PC_SLICE_H
 
 /*
  *  These define the basic PC MBR sector characteristics

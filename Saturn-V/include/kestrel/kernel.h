@@ -25,12 +25,11 @@
 #define	F_OK	0		/* Test for existence.  */
 
 /* Memory map address range descriptor used by GET_MMAP_ENTRY. */
-struct mmar_desc
-{
-  unsigned long desc_len;	/* Size of this descriptor. */
-  unsigned long long addr;	/* Base address. */
-  unsigned long long length;	/* Length in bytes. */
-  unsigned long type;		/* Type of address range. */
+struct mmar_desc {
+	unsigned long int desc_len;	/* Size of this descriptor. */
+	unsigned long long int addr;	/* Base address. */
+	unsigned long long int length;	/* Length in bytes. */
+	unsigned long int type;		/* Type of address range. */
 } __attribute__ ((packed));
 
 void stop(void) __attribute__((__noreturn__));

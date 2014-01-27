@@ -8,7 +8,8 @@ COMMANDS = \
 	argstest.o \
 	date.o \
 	echo.o \
-	panic.o
+	panic.o \
+	reboot.o
 
 commands.a:	$(COMMANDS)
 	$(AR) r $@ $^

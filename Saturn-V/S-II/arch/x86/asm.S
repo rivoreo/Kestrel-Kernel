@@ -686,7 +686,6 @@ ENTRY(stop)
 hard_stop:
 	sti
 	hlt
-	//jmp EXT_C(hard_stop)
 	jmp hard_stop
 
 VARIABLE(configfile_opened)
@@ -1721,7 +1720,6 @@ ENTRY(hooked_drive_map)
 
 	.ascii	"$INT13SF"		/* Win9x use this! Don't touch! */
 	.ascii	"KESTREL1"
-//	.ascii	"GRUB4DOS"		/* 8-byte Vender ID */
 
 	. = int13_handler + 0x113
 
@@ -7186,59 +7184,6 @@ ENTRY(chain_stage1)
 #endif /* STAGE1_5 */
 
 
-#ifdef STAGE1_5
-/*
- * chain_stage2(segment, offset, second_sector)
- *
- *  This starts another stage2 loader, at segment:offset.  It presumes
- *  that the other one starts with this same "asm.S" file, and passes
- *  parameters by writing the embedded install variables.
- */
-
-ENTRY(chain_stage2)
-	/* no need to save anything, just use %esp */
-
-	/* store new offset */
-	movl	0x8(%esp), %eax
-	movl	%eax, offset
-	movl	%eax, %ebx
-
-	/* store new segment */
-	movw	0x4(%esp), %ax
-	movw	%ax, segment
-	shll	$4, %eax
-
-	/* generate linear address */
-	addl	%eax, %ebx
-
-	/* set up to pass the partition where stage2 is located in */
-	movl	EXT_C(current_partition), %eax
-	movl	%eax, (EXT_C(install_partition)-EXT_C(main))(%ebx)
-
-	/* set up to pass the drive where stage2 is located in */
-	movb	EXT_C(current_drive), %dl
-
-	/* set up to pass the second sector of stage2 */
-	movl	0xc(%esp), %ecx
-
-	call	EXT_C(prot_to_real)
-
-	.code16
-
-	//sti		/* it is not bad keeping interrupt off */
-	sti		/* for hardware interrupt or watchdog */
-
-	movl	%ecx, %ebp
-
-#ifdef ABSOLUTE_WITHOUT_ASTERISK
-	DATA32	ADDR32	ljmp	(offset)
-#else
-	DATA32	ADDR32	ljmp	*(offset)
-#endif
-
-	.code32
-#endif /* STAGE1_5 */
-
 /*
  *  These next two routines, "real_to_prot" and "prot_to_real" are structured
  *  in a very specific way.  Be very careful when changing them.
@@ -8379,8 +8324,6 @@ cross_track:
 
 	.code32
 
-
-#ifndef STAGE1_5
 /* get_code_end() :  return the address of the end of the code
  * This is here so that it can be replaced by asmstub.c.
  */
@@ -8395,7 +8338,6 @@ ENTRY(get_code_end)
 	incl	%eax
 	shll	$2, %eax
 	ret
-#endif /* ! STAGE1_5 */
 
 /*
  *
@@ -8431,12 +8373,8 @@ ENTRY(get_memsize)
 //xext:
 1:
 	movb	$0x88, %ah
-#ifdef STAGE1_5
-	int	$0x15
-#else
 	pushfw
 	lcall	*ABS(EXT_C(ROM_int15))
-#endif
 
 //xdone:
 2:
@@ -9741,6 +9679,7 @@ ENTRY(big_linux_boot)
 	.code32
 #endif
 
+#if 0
 /*
  * multi_boot(int start, int mb_info)
  *
@@ -9759,10 +9698,10 @@ ENTRY(multi_boot)
 
 	/* error */
 	call	EXT_C(stop)
+#endif
 
 #endif /* ! STAGE1_5 */
 
-#ifndef STAGE1_5
 /*
  * void toggle_blinking (void)
  * BIOS call "INT 10H Function 1003h" to toggle intensity/blinking bit
@@ -9799,7 +9738,6 @@ ENTRY(toggle_blinking)
 	pop	%ebx
 	pop	%ebp
 	ret
-#endif /* ! STAGE1_5 */
 
 /*
  * int get_bios_time(void)
@@ -9850,11 +9788,7 @@ ENTRY(get_bios_time)
 ENTRY(console_putchar)
 	movl	0x4(%esp), %edx
 	pusha
-#ifdef STAGE1_5
-	movb	$0x07, %bl
-#else
 	movl	EXT_C(console_current_color), %ebx
-#endif
 
 	call	EXT_C(prot_to_real)
 	.code16
@@ -9865,7 +9799,6 @@ ENTRY(console_putchar)
 	movb	%dl, %al
 	xorb	%bh, %bh
 
-#ifndef STAGE1_5
 	/* use teletype output if control character */
 	cmpb	$0x07, %al
 	je	1f
@@ -9914,7 +9847,6 @@ ENTRY(console_putchar)
 	int	$0x10
 
 	jmp	3f
-#endif /* ! STAGE1_5 */
 
 1:	movb	$0x0e, %ah
 	int	$0x10

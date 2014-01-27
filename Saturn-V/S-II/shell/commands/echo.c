@@ -68,15 +68,6 @@ int echo_command(int argc, char **argv)
 			if(*p == 'e') eflag = 1;
 		}
 		ap++;
-/*
-		if (equal(p, "-n")) {
-			nflag = 1;
-			ap++;
-		} else if (equal(p, "-e")) {
-			eflag = 1;
-			ap++;
-		}
-*/
 	}
 
 	while ((p = *ap++) != NULL) {

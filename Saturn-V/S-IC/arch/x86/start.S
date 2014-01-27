@@ -198,7 +198,7 @@ _start1:
 //	jz	1f
 
 //	xchgw	%ax, %cx	/* this moves CL to AL, and CX=0 */
-	movw	$(((pre_stage2_start - _start1) >> 9) + 0x200), %ax
+	movw	$(((kernel_start - _start1) >> 9) + 0x200), %ax
 //	movb	$0x02, %ah
 	movw	%ax, %bp	/* save AX to BP: read 1 track */
 	xorw	%bx, %bx	/* ES already has a known value of 0x9400 */
@@ -295,7 +295,7 @@ disk_serial_number_structure_end:
 
 	/* CH=0 */
 
-	movb	$(((pre_stage2_start - _start1) >> 9) - 1), %al
+	movb	$(((kernel_start - _start1) >> 9) - 1), %al
 	cmpb	%al, %cl
 	jbe	3f
 
@@ -591,12 +591,7 @@ print_message:
 	ret
 
 message_string:
-
-#if (! defined(GRLDR_MBR)) && (! defined(GRLDR_INSTALL))
 	.ascii	"\r\nMissing helper.\0"
-#else
-	.ascii	"\r\nMissing MBR-helper.\0"
-#endif
 
 #;buggy_bios_string:
 #;
@@ -1009,9 +1004,9 @@ grldr_real_start:
 
 	/* CS=DS=BX, CS:0000 = _start1 */
 
-	addw	$((pre_stage2_start - _start1) >> 4), %bx
+	addw	$((kernel_start - _start1) >> 4), %bx
 
-	/* BX:0000 = pre_stage2_start */
+	/* BX:0000 = kernel_start */
 
 	cmpw	$0x7C0, %bp
 	jne	1f
@@ -1019,12 +1014,12 @@ grldr_real_start:
 	je	2f
 1:
 	/* disable pxe */
-	orb	$0x01, (pre_stage2_start - _start1 + 5)
+	orb	$0x01, (kernel_start - _start1 + 5)
 2:
 	cmpw	$0x820, %bx
 	jb	2f
 
-	movw	$((0x8200 - (pre_stage2_start - _start1) - 0x400) >> 4), %cx
+	movw	$((0x8200 - (kernel_start - _start1) - 0x400) >> 4), %cx
 
 	/* Now CS(=DS) >= CX+0x40 */
 
@@ -1036,7 +1031,7 @@ grldr_real_start:
 	//
 	//                    CS
 	//                    DS          0x820     BX
-	//                    _start1---------------pre_stage2_start
+	//                    _start1---------------kernel_start
 	//          CX+0x40---------------0x820
 	//   CX
 	//   ES
@@ -1137,7 +1132,7 @@ grldr_real_start:
 
 	addw	$(default_config_file - _start1), %si
 
-	//movw	$(default_config_file + 0x8200 - pre_stage2_start), %si
+	//movw	$(default_config_file + 0x8200 - kernel_start), %si
 	cld
 	repz movsb	/* move file name to the config-file field of stage2 */
 1:
@@ -2682,12 +2677,6 @@ msg_BootError_12_16:
 
 filename_12_16:
 	.ascii	"KESTREL    \0"
-/*
-#ifdef	BOOTGRUB
-	.ascii	"GRLDR      \0"
-#else
-	.ascii	"KERNEL  SYS\0"
-#endif*/
 
 #ifdef ALTERNATIVE_KERNEL
 filename_end_12_16:
@@ -7251,7 +7240,6 @@ modify_NTFS_boot_record:
 	ret
 #endif
 
-//#if (! defined(GRLDR_MBR)) && (! defined(GRLDR_INSTALL))
 move_helper:
 	
 	/* called only once and only when the boot loader loaded this code */
@@ -7272,85 +7260,6 @@ move_helper:
 	popw	%bx
 	popw	%si
 	ret
-//#endif
-
-#if (defined(GRLDR_MBR)) || (defined(GRLDR_INSTALL))
-set_floppy_preferred:
-	movw	$0xff00, 0x06	/* preferred drive=0, partition=0xff */
-	andb	$0xFE, 0x02	/* bit0=0, enable GRLDR search on floppy */
-	ret
-
-filesystem_boot:
-	/* The partition boot record successfully modified, just boot it */
-
-	/*
-	 * The boot might fail, but we want to take back the control.
-	 * So we save the registers now.
-	 */
-	pushw	%ds
-	pushw	%es
-	pushal
-
-	/* DS=CS=GRLDR_CS, ES=FS_BOOT */
-
-	/* save GRLDR_CS */
-
-	movw	%es, %bx	# save old ES to BX
-
-	cli
-	lgdt	gdt - _start1
-	movl	%cr0, %eax
-	orb	$1, %al
-	movl	%eax, %cr0
-
-	movw	$8, %si
-	movw	%si, %es
-
-	xorl	%esi, %esi
-	xorl	%edi, %edi
-	movl	$(0x9000 / 4), %ecx
-
-	cld
-	repz movsl
-
-	movw	$16, %si
-	movw	%si, %es
-
-	andb	$0xfe, %al
-	movl	%eax, %cr0
-
-	movw	%bx, %es	# restore ES from BX
-
-	/* move FS_BOOT:0000 to 0:7c00 */
-#if 0
-	/* for single sector boot record */
-	movw	$0x0200, %cx	/* move 2 sectors, the old FS_BOOT:0000 will keep untouched.  */
-#else
-	/* for 4-sector NTFS boot record */
-	movw	$0x0400, %cx	/* move 4 sectors, the old FS_BOOT:0000 will keep untouched.  */
-#endif
-	xorw	%si, %si
-	pushw	%si	/* SI=0, for the segment of 0000:7c00 */
-	movw	$0x7c00, %di
-	pushw	%di	/* DI=0x7c00, for the offset of 0000:7c00 */
-	pushw	%es	/* ES=FS_BOOT */
-	popw	%ds	/* DS=FS_BOOT */
-	pushw	%si	/* SI=0 */
-	popw	%es	/* ES=0 */
-	cld
-	repz movsw
-
-	movw	$MONITOR, %di
-	movw	$(restore_GRLDR_CS - _start1), %si
-	movw	$((gdt_end - restore_GRLDR_CS) / 4), %cx
-	cld
-	repz cs movsl		/* CS segment override prefix(=0x2E) */
-
-	pushw	%es	/* ES=0 */
-	popw	%ds	/* DS=0 */
-	sti
-	lret	//ljmp	$0, $0x7c00
-#endif
 
 geometry_tune:
 
@@ -7379,24 +7288,6 @@ geometry_tune:
 1:
 	movw	$0xffff, 0x08
 
-#if (defined(GRLDR_MBR)) || (defined(GRLDR_INSTALL))
-	cmpb	$0x42, 0x00	/* EBIOS present? */
-	je	2f		/* yes, skip the tune */
-
-	#; real geometry tune follows. if you wish to disable the tune,
-	#; just do a 'ret' here.
-	//ret		#; disable the tune
-
-	testb	$0x08, 0x02	/* chs-no-tune */
-	jnz	2f
-
-	/* check if the code is loaded completely */
-
-//	cmpl	$0xAA555247, (grldr_signature - _start1) /* "GR" 0x55 0xAA */
-	cmpl	$0xaa55454b, (loader_signature - _start1)		# "KE" 0x55 0xaa
-	je	real_geometry_tune
-
-#endif
 2:
 	ret
 
@@ -8164,7 +8055,6 @@ cross_track:
 
 	.word   4
 
-//grldr_signature:
 loader_signature:
 	.byte	0x4b, 0x45, 0x55, 0xaa		# signature for helper
 
@@ -8183,5 +8073,5 @@ loader_signature:
 	. = . + (0x2000 - (. - _start1)) * (0x4000 / (. - _start1 + 0x2001))
 #endif
 
-pre_stage2_start:
+kernel_start:
 
