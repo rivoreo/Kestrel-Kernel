@@ -9,8 +9,7 @@
 #ifndef _MULTI_STRING_H
 #define _MULTI_STRING_H
 
-//#include <stddef.h>
-typedef unsigned int size_t;
+#include <kestrel/types.h>
 
 typedef char *mstr;
 typedef mstr MultiString;
