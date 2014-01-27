@@ -8,6 +8,7 @@ COMMANDS = \
 	argstest.o \
 	date.o \
 	echo.o \
+	help.o \
 	panic.o \
 	reboot.o
 

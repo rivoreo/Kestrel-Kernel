@@ -9,16 +9,16 @@ kestrel:	S-IC/start.com S-II/kernel.com
 S-IC/start.com:	S-II/kernel.com
 	make -C S-IC
 
-S-II/kernel.com:	3part-lib/libmstr.a
+S-II/kernel.com:	lib/libmstr.a
 	make -C S-II
 
-3part-lib/libmstr.a:
-	make -C 3part-lib
+lib/libmstr.a:
+	make -C lib
 
 clean:
 	make -C S-IC $@
 	make -C S-II $@
-	make -C 3part-lib $@
+	make -C lib $@
 
 distclean:	clean
 	rm -f $(ECHO) kestrel

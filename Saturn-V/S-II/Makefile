@@ -14,7 +14,7 @@ OBJCOPY = objcopy -R .note -R .comment -R .note.gnu.build-id
 
 CFLAGS = -I../include --include ../version.h -DSUPPORT_GRAPHICS=1 -DSUPPORT_GFX=1 -Os -fno-stack-protector -fno-builtin -nostdinc -Wall -Wunused -Wshadow -Wpointer-arith -falign-jumps=1 -falign-loops=1 -falign-functions=1 -Wundef
 LDFLAGS = -N -Ttext 8200 --build-id=none
-LIBS = -L../3part-lib -lmstr
+LIBS = -L../lib -lmstr
 
 OBJS = \
 	asm.o \

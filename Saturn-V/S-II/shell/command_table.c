@@ -14,12 +14,14 @@
 extern int argstest_command(int, char **);
 extern int date_command(int, char**);
 extern int echo_command(int, char **);
+extern int help_command(int, char **);
 extern int panic_command(int, char **);
 extern int reboot_command(int, char **);
 
 static command_t c_argstest = { "argstest", argstest_command, "argstest [<args>]" };
 static command_t c_date = { "date", date_command, "date [<option>] ... [+<format>]" };
 static command_t c_echo = { "echo", echo_command, "echo [-ne] <args>" };
+static command_t c_help = { "help", help_command, "help" };
 static command_t c_panic = { "panic", panic_command, "panic <message> [<status>]" };
 static command_t c_reboot = { "reboot", reboot_command, "reboot" };
 
@@ -27,6 +29,7 @@ command_t *command_table[] = {
 	&c_argstest,
 	&c_date,
 	&c_echo,
+	&c_help,
 	&c_panic,
 	&c_reboot,
 	NULL

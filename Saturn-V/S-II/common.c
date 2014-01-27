@@ -30,7 +30,7 @@ void init_memory() {
 
 	extended_memory = saved_mem_upper;
 
-	unsigned long int addr = get_code_end ();
+	unsigned long int addr = get_code_end();
 	saved_mmap_addr = addr;
 	saved_mmap_length = 0;
 
