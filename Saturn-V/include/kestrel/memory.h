@@ -8,15 +8,23 @@
 	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 */
 
-void *kernel_malloc(size_t);
-void free(void *);
-void kernel_malloc_init();
-void *last_address;
-void *managed_address_start;
-int has_inited = 0;
+#ifndef _KESTREL_MEMORY
+#define _KESTREL_MEMORY
+
+#include <kestrel/types.h>
+
+#define kernel_alloc kernel_malloc
 
 struct mem_control_block {
 	int is_available;
 	int size;
 }
 
+void *kernel_malloc(size_t);
+void kernel_free(void *);
+void kernel_malloc_init();
+void *last_address;
+void *managed_address_start;
+int has_inited = 0;
+
+#endif

@@ -9,12 +9,10 @@
 */
 
 #include <kestrel/kernel.h>
-#include <kestrel/types.h>
+//#include <kestrel/types.h>
 #include <kestrel/memory.h>
 
-
-void kernel_malloc_init()
-{
+void kernel_malloc_init() {
 	//开始管理内存首地址
 	last_address = heap+102400;
 	managed_address_start = start_address;
