@@ -28,7 +28,6 @@ int gettime(struct tm *time) {
 	BCD_TO_BIN (time->tm_mday);
 	BCD_TO_BIN (time->tm_mon);
 	BCD_TO_BIN (time->tm_year);
-	//time->tm_mon--;
 	return 0;
 }
 

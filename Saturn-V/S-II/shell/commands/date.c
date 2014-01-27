@@ -9,8 +9,16 @@
 */ 
 
 #include <kestrel/kernel.h>
+#include <kestrel/time.h>
 
 int date_command(int argc, char **argv) {
+	struct tm cdate;
+		gettime(&cdate);
+		kernel_printf(	"The current UTC time is:\n"
+				"%d/%d/%d\n%d:%d:%d\n",
+				cdate.tm_year, cdate.tm_mon,
+				cdate.tm_mday, cdate.tm_hour,
+				cdate.tm_min, cdate.tm_sec);
 	return 0;
 }
 
