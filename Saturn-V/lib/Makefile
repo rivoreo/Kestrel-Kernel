@@ -1,4 +1,4 @@
-AR = ar --target elf32-i386
+#AR = ar --target elf32-i386
 ifeq ($(CC),cc)
 CC = gcc -m32
 endif
