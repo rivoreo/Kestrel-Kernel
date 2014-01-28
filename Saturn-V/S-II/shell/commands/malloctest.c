@@ -11,7 +11,10 @@
 #include <kestrel/kernel.h>
 
 int malloctest_command(int argc, char **argv) {
-	if(argc < 2) return 1;
+	if(argc < 2) {
+		kernel_printf("Usage: %s <count> [<size of allocates>]\n", argv[0]);
+		return 1;
+	}
 	unsigned int count = atoi(argv[1]);
 	size_t alloc_size = 8;
 	if(!count) {
