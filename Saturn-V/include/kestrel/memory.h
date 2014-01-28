@@ -16,9 +16,9 @@
 #define kernel_alloc kernel_malloc
 
 struct mem_control_block {
-	int is_available;
-	int size;
-}
+	unsigned int  is_available;
+	size_t size;
+};
 
 void *kernel_malloc(size_t);
 void kernel_free(void *);

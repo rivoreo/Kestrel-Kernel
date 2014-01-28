@@ -24,6 +24,7 @@ OBJS = \
 	graphics.o \
 	io.o \
 	kestrel.o \
+	memory.o \
 	panic.o \
 	string.o \
 	time.o \
