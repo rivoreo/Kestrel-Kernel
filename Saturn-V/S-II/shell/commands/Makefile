@@ -7,6 +7,7 @@ CFLAGS = -I../../../include --include ../../../version.h --include ../../shared.
 COMMANDS = \
 	argstest.o \
 	date.o \
+	doublefree.o \
 	echo.o \
 	help.o \
 	panic.o \

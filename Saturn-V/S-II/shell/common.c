@@ -60,15 +60,10 @@ command_t *find_command(char *command) {
 		ptr++;
 	}
 
-	for(builtin = command_table; *builtin != 0; builtin++) {
-		int r = kernel_strcmp(command, (*builtin)->name);
-
-		if(r == 0) {
-			/* Found */
-			return *builtin;
-		} else if(r < 0) break;
+	for(builtin = command_table; *builtin; builtin++) {
+		if(kernel_strcmp(command, (*builtin)->name) == 0) return *builtin;	// Found
 	}
 
-	/* Not found */
+	// Not found
 	return NULL;
 }

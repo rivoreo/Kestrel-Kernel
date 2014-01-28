@@ -36,7 +36,7 @@ void *kernel_malloc(size_t numbytes) {
 	//用于下面判断是否改继续申请内存
 	memory_location = 0;
 	current_location = managed_address_start;
-/*	//如果当前内存偏移不等于当前内存断址，开始循环寻找可用内存*/
+	//如果当前内存偏移不等于当前内存断址，开始循环寻找可用内存
 	while(current_location != last_address) {
 		current_location_mcb = (struct mem_control_block *)current_location;
 		if(current_location_mcb->is_available && 
