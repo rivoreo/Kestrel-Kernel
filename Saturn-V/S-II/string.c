@@ -9,7 +9,7 @@
 */
 
 #include <kestrel/types.h>
-//#include <ctype.h>
+#include <kestrel/errno.h>
 
 size_t kernel_strlen(const char *s) {
 	size_t len = 0;
@@ -157,5 +157,6 @@ char *convert_to_ascii(char *buf, int c, ...) {
 		ptr2++;
 	}
 
+	errno = 0;
 	return ptr;
 }

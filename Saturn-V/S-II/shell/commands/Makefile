@@ -10,6 +10,7 @@ COMMANDS = \
 	doublefree.o \
 	echo.o \
 	help.o \
+	malloctest.o \
 	panic.o \
 	reboot.o
 

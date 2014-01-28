@@ -9,16 +9,13 @@
 */
 
 #include <kestrel/kernel.h>
-#include <kestrel/memory.h>
 
 int doublefree_command(int argc, char **argv) {
 	if(argc != 2) return 1;
-	void *address = malloc(2);
-	int times = kernel_atoi(argv[1]);
-	for(;times > 0;times--) {
-		kernel_free(address);
-	}
-	kernel_printf("Woo!! This is double free\n");
+	void *address = kernel_malloc(2);
+	int times = kernel_atoi(argv[1]), i = times;
+	for(; i; i--) kernel_free(address);
+	if(times > 1) kernel_puts("Woo!! This is multi free");
 	return 0;
 }
 

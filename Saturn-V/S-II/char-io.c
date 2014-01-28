@@ -8,9 +8,9 @@
 	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 */
 
-//#include "shared.h"
 #include <kestrel/kernel.h>
 #include <kestrel/graphics.h>
+#include <kestrel/errno.h>
 
 int console_getkey(void);
 void console_putchar(int);
@@ -22,8 +22,13 @@ int kernel_printf(const char *format, ...) {
 	int width;
 	int r = 0;
 
-	if(!format) return -1;
+	if(!format) {
+		errno = EINVAL;
+		return -1;
+	}
 	dataptr++;
+
+	errno = 0;
 
 	while ((c = *(format++))) {
 		if(c == '%') {

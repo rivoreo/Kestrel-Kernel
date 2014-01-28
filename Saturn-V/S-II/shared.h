@@ -68,6 +68,9 @@
 #undef getchar
 #define getchar kernel_getchar
 
+#define atoi kernel_atoi
+#define atol kernel_atol
+
 #define malloc kernel_malloc
 #define realloc kernel_realloc
 #define free kernel_free
@@ -112,7 +115,6 @@
 #include <kestrel/errno.h>
 #include <kestrel/graphics.h>
 #include <kestrel/kernel.h>
-#include <kestrel/memory.h>
 #include <kestrel/time.h>
 #include <kestrel/types.h>
 #endif

@@ -13,7 +13,8 @@
 #include <mstring.h>
 
 void enter_shell() {
-	char *buffer = (char *)heap;
+	//char *buffer = (char *)heap;
+	char *buffer = kernel_alloc(MAX_COMMAND * sizeof(char));
 	command_t *command;
 
 	kernel_printf("Kestrel Kernel build-in shell\n\n");
@@ -33,11 +34,13 @@ void enter_shell() {
 		}
 		int _argc;
 		char **_argv;
-		_argv = (char **)heap + MAX_COMMAND;
+		//_argv = (char **)heap + MAX_COMMAND;
 		int i = mstrcount(commandline);
 		_argc = i;
+		_argv = (char **)kernel_alloc((i + 1) * sizeof(char *));
 		_argv[i] = NULL;
 		for(; i; i--) _argv[i-1] = mstrindex(commandline, i);
 		last_status = command->exec(_argc, _argv);
+		kernel_free(_argv);
 	}
 }

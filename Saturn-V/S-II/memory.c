@@ -9,18 +9,69 @@
  */
 
 #include <kestrel/kernel.h>
-//#include <kestrel/types.h>
-#include <kestrel/memory.h>
+#include <kestrel/errno.h>
+
+void *heap;
+
+unsigned long int saved_mem_lower;
+unsigned long int saved_mmap_addr;
+unsigned long int saved_mmap_length;
+
+unsigned long int extended_memory;
+unsigned long int init_free_mem_start;
 
 void *last_address;
 void *managed_address_start;
-int has_inited = 0;
+int allocater_is_inited = 0;
+
+void init_memory() {
+	unsigned long int count = 0;
+
+	kernel_printf("Getting lower memory...");
+	saved_mem_lower = get_memsize (0);
+	kernel_printf(" %luKB\n", saved_mem_lower);
+
+	kernel_printf("Getting upper memory...");
+	saved_mem_upper = get_memsize (1);
+	kernel_printf(" %luKB\n", saved_mem_upper);
+
+	kernel_puts("Turning on gate A20...");
+	if(!gateA20(1)) kernel_panic("failed to turn on gate A20", 0);
+	kernel_putchar('\n');
+
+	extended_memory = saved_mem_upper;
+
+	unsigned long int addr = get_code_end();
+	saved_mmap_addr = addr;
+	saved_mmap_length = 0;
+
+	kernel_puts("Getting E820 memory...");
+	do {
+		count = get_mmap_entry((void *)addr, count);
+		if(!*(unsigned long int *)addr) break;
+		saved_mmap_length += *(unsigned long int *)addr + 4;
+		addr += *(unsigned long int *)addr + 4;
+	} while(count);
+
+/*
+	if(saved_mmap_length) {
+		unsigned long long int max_addr;
+		saved_mem_lower = mmap_avail_at(0) >> 10;
+		saved_mem_upper = mmap_avail_at(0x100000) >> 10;
+	} else {
+		kernel_puts("Getting E801 memory...");
+	}*/
+
+	init_free_mem_start = addr;
+	heap = ((char *)init_free_mem_start) + 256 * sizeof (char *);
+	errno = 0;
+}
 
 void kernel_malloc_init() {
 	//开始管理内存首地址
-	last_address = (char *)heap+102400;
+	last_address = (char *)heap + 1024;
 	managed_address_start = last_address;
-	has_inited = 1;
+	allocater_is_inited = 1;
 }
 
 void *kernel_malloc(size_t numbytes) {
@@ -28,7 +79,7 @@ void *kernel_malloc(size_t numbytes) {
 	void *memory_location;
 	struct mem_control_block *current_location_mcb;
 	//如果首地址未被初始化，则执行kernel_malloc_init()
-	if(!has_inited) {
+	if(!allocater_is_inited) {
 		kernel_malloc_init();
 	}
 	//应初始化的内存实际为numbytes+mcb控制块所占内存
@@ -45,36 +96,41 @@ void *kernel_malloc(size_t numbytes) {
 			memory_location = current_location;
 			break;
 		}
-		current_location = current_location + current_location_mcb->size;
+		current_location = (char *)current_location + current_location_mcb->size;
 	}
 
 	if(!memory_location) {
-		memory_location = last_address;
-		//申请内存
-		last_address = last_address + numbytes;
-		//准备写入内存控制块(MCB)
-		current_location_mcb = (struct mem_control_bloock *)memory_location;
-		//写入控制块
-		current_location_mcb->is_available = 0;
+		memory_location = last_address;		//取得地址
+		last_address = (char *)last_address + numbytes;
+		current_location_mcb = (struct mem_control_block *)memory_location;		//准备写入内存控制块(MCB)
+		current_location_mcb->is_available = 0;		//写入控制块
 		current_location_mcb->size = numbytes;
 	}
 	//将指针偏移移动过控制块(MCB)
-	memory_location = memory_location + sizeof(struct mem_control_block);
+	memory_location = (char *)memory_location + sizeof(struct mem_control_block);
+
+	errno = 0;
+
 	//返回指针
 	return memory_location;
 }
 
 void kernel_free(void *firstbyte) {
 	if(!firstbyte) return;
+	if(!allocater_is_inited) panic("free: allocater has not inited");
 	struct mem_control_block *mcb;
 	//回退到控制块
-	mcb = firstbyte - sizeof(struct mem_control_block);
+	mcb = (struct mem_control_block *)((char *)firstbyte - sizeof(struct mem_control_block));
 	//判断地址合法性
 	if(mcb->is_available) {
+		kernel_printf("free: In address 0x%lx\n", (long int)firstbyte);
+		errno = EFAULT;
 		if(mcb->is_available > 1) panic("free: Invalid address!");
-		kernel_puts("Warning:Double free!!!");
+		kernel_puts("Warning: Double free!!!");
+		errno = EFAULT;
 	}
 	//Woo!! 成功释放内存，啦啦啦~~~
 	mcb->is_available = 1;
+	errno = 0;
 }
 

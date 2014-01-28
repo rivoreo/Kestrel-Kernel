@@ -24,6 +24,8 @@
 #define	X_OK	1		/* Test for execute permission.  */
 #define	F_OK	0		/* Test for existence.  */
 
+#define kernel_alloc kernel_malloc
+
 /* Memory map address range descriptor used by GET_MMAP_ENTRY. */
 struct mmar_desc {
 	unsigned long int desc_len;	/* Size of this descriptor. */
@@ -31,6 +33,11 @@ struct mmar_desc {
 	unsigned long long int length;	/* Length in bytes. */
 	unsigned long int type;		/* Type of address range. */
 } __attribute__ ((packed));
+
+struct mem_control_block {
+	unsigned int is_available;
+	size_t size;
+};
 
 void stop(void) __attribute__((__noreturn__));
 void panic(const char *) __attribute__((__noreturn__));
@@ -56,6 +63,10 @@ int kernel_printf(const char *, ...);
 int kernel_getchar(void);
 //int kernel_gets(char *, size_t);
 char *kernel_gets(char *, size_t);
+
+void kernel_malloc_init(void);
+void *kernel_malloc(size_t);
+void kernel_free(void *);
 
 time_t kernel_get_bios_time(void);
 

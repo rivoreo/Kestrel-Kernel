@@ -111,6 +111,7 @@ int graphics_init(void)
 	graphics_highlight_color = ((graphics_normal_color >> 4) | 
 			((graphics_normal_color & 0xf) << 4));
 
+	errno = 0;
 	return 1;
 }
 
@@ -121,6 +122,7 @@ void graphics_end(void)
 		set_videomode (saved_videomode);
 		graphics_inited = 0;
 	}
+	errno = 0;
 }
 
 /* Print ch on the screen.  Handle any needed scrolling or the like */
@@ -168,7 +170,7 @@ int graphics_putchar(int ch)
 	}
 
 	graphics_cursor(1);
-
+	errno = 0;
 	return ch;
 }
 
@@ -223,6 +225,7 @@ void graphics_cls(void)
 
 	MapMask(15);
 
+	errno = 0;
 }
 
 void graphics_setcolorstate(color_state state)
@@ -264,6 +267,7 @@ void graphics_setcolor(int normal_color, int highlight_color, int helptext_color
 int graphics_setcursor(int on)
 {
 	/* FIXME: we don't have a cursor in graphics */
+	errno = ENOSYS;
 	return 0;
 }
 

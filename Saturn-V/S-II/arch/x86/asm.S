@@ -9762,7 +9762,7 @@ ENTRY(get_bios_time)
 	addb	$0, %al  
 	addb	$0xf, %ah  
 	addb	$0, %ah 
-	movb	%ax, %bx
+	movb	%al, %bl
 	DATA32	call	EXT_C(real_to_prot)
 	.code32
 
