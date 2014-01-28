@@ -12,6 +12,10 @@
 #include <kestrel/memory.h>
 
 int doublefree_command(int argc, char **argv) {
+	if(argc < 2) {
+		kernel_puts("Usage: doublefree <free times>");
+		return -1;
+	}
 	if(argc != 2) return 1;
 	void *address = malloc(2);
 	int times = kernel_atoi(argv[1]);
