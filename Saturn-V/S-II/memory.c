@@ -119,7 +119,16 @@ void *kernel_malloc(size_t numbytes) {
 					continue;
 				}
 			} else {
+				//如果内存空间大于申请空间，对此区域空间进行分割
 				current_location_mcb->is_available = 0;
+				//分割内存空间，重建mcb
+				tmp_location_mcb = (struct mem_control_block*)current_location + numbytes;
+				tmp_location_mcb->size = current_location_mcb->size - numbytes;
+				tmp_location_mcb->is_available = 1;
+				current_location_mcb->size = numbytes;
+				//----------内存空间分割完成----------//
+				tmp_location = (char *)current_location + current_location_mcb->size;
+				tmp_location_mcb = (struct mem_control_block*)tmp_location;
 				memory_location = current_location;
 				break;
 			}
