@@ -7143,44 +7143,6 @@ reg_probe_dev_exist:
 #endif	/* CDROM_INIT */
 
 	.code32
-
-
-/*
- * chain_stage1(segment, offset, part_table_addr)
- *
- *  This starts another stage1 loader, at segment:offset.
- */
-
-ENTRY(chain_stage1)
-	/* no need to save anything, just use %esp */
-
-	/* store %ESI, presuming %ES is 0 */
-	movl	0xc(%esp), %esi
-
-	/* store new offset */
-	movl	0x8(%esp), %eax
-	movl	%eax, offset
-
-	/* store new segment */
-	movw	0x4(%esp), %ax
-	movw	%ax, segment
-
-	/* set up to pass boot drive */
-	movb	EXT_C(boot_drive), %dl
-
-	call	EXT_C(prot_to_real)
-
-	.code16
-
-	//sti		/* it is not bad keeping interrupt off */
-	sti		/* for hardware interrupt or watchdog */
-
-#ifdef ABSOLUTE_WITHOUT_ASTERISK
-	DATA32	ADDR32	ljmp	(offset)
-#else
-	DATA32	ADDR32	ljmp	*(offset)
-#endif
-	.code32
 #endif /* STAGE1_5 */
 
 

@@ -6,12 +6,10 @@
 	This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
 
 	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
- */
+*/
 
 #include <kestrel/kernel.h>
 #include <kestrel/errno.h>
-
-void *heap;
 
 unsigned long int saved_mem_lower;
 unsigned long int saved_mmap_addr;
@@ -20,9 +18,16 @@ unsigned long int saved_mmap_length;
 unsigned long int extended_memory;
 unsigned long int init_free_mem_start;
 
-void *last_address;
-void *managed_address_start;
-int allocater_is_inited = 0;
+static void *heap = NULL;
+
+static void *last_address;
+static void *managed_address_start;
+static int allocater_is_inited = 0;
+
+void *get_kernel_heap() {
+	if(!heap) kernel_panic("kernel heap not initialized", EFAULT);
+	return heap;
+}
 
 void init_memory() {
 	unsigned long int count = 0;
@@ -53,24 +58,16 @@ void init_memory() {
 		addr += *(unsigned long int *)addr + 4;
 	} while(count);
 
-	/*
-	   if(saved_mmap_length) {
-	   unsigned long long int max_addr;
-	   saved_mem_lower = mmap_avail_at(0) >> 10;
-	   saved_mem_upper = mmap_avail_at(0x100000) >> 10;
-	   } else {
-	   kernel_puts("Getting E801 memory...");
-	   }*/
-
 	init_free_mem_start = addr;
 	heap = ((char *)init_free_mem_start) + 256 * sizeof (char *);
+
 	errno = 0;
+	kernel_malloc_init(get_kernel_heap());
 }
 
-void kernel_malloc_init() {
+void kernel_malloc_init(void *start) {
 	//开始管理内存首地址
-	last_address = (char *)heap + 1024;
-	managed_address_start = last_address;
+	managed_address_start = last_address = start;
 	allocater_is_inited = 1;
 }
 
@@ -82,7 +79,7 @@ void *kernel_malloc(size_t numbytes) {
 	struct mem_control_block *current_location_mcb;
 	//如果首地址未被初始化，则执行kernel_malloc_init()
 	if(!allocater_is_inited) {
-		kernel_malloc_init();
+		kernel_malloc_init(get_kernel_heap());
 	}
 	//应初始化的内存实际为numbytes+mcb控制块所占内存
 	numbytes = numbytes + sizeof(struct mem_control_block);
@@ -160,6 +157,7 @@ void kernel_free(void *firstbyte) {
 	struct mem_control_block *mcb;
 	//回退到控制块
 	mcb = (struct mem_control_block *)((char *)firstbyte - sizeof(struct mem_control_block));
+	errno = 0;
 	//判断地址合法性
 	if(mcb->is_available) {
 		kernel_printf("free: In address 0x%lx\n", (long int)firstbyte);
@@ -170,6 +168,5 @@ void kernel_free(void *firstbyte) {
 	}
 	//Woo!! 成功释放内存，啦啦啦~~~
 	mcb->is_available = 1;
-	errno = 0;
 }
 

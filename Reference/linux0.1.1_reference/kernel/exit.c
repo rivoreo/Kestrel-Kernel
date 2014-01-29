@@ -71,7 +71,7 @@ kill_session (void)
 * groups, etc. etc. kill() permissions semantics are tricky!
 */
 /*
-* 为了向进程组等发送信号，XXX 需要检查许可。kill()的许可机制非常巧妙!
+* 需要检查许可，以向进程组等发送信号。kill()的许可机制非常巧妙！
 */
 //// kill()系统调用可用于向任何进程或进程组发送任何信号。
 // 如果pid 值>0，则信号被发送给pid。

@@ -64,7 +64,6 @@ int kernel_getchar(void);
 //int kernel_gets(char *, size_t);
 char *kernel_gets(char *, size_t);
 
-void kernel_malloc_init(void);
 void *kernel_malloc(size_t);
 void kernel_free(void *);
 
@@ -79,8 +78,10 @@ int get_mmap_entry(struct mmar_desc *, int);
 int getrtsecs(void);
 
 void init_memory(void);
+void *get_kernel_heap(void);
+void kernel_malloc_init(void *);
 
-extern void *heap;
+//extern void *heap;
 
 extern unsigned long int saved_mem_upper;
 extern unsigned long int saved_mem_lower;
