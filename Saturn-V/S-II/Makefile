@@ -21,6 +21,7 @@ OBJS = \
 	char-io.o \
 	common.o \
 	console.o \
+	fsys/fsys_ext2fs.o \
 	graphics.o \
 	io.o \
 	kestrel.o \
