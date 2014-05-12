@@ -53,7 +53,7 @@ void *kernel_memcpy(void *to, const void *from, size_t n) {
 	return to;
 }
 
-void *kernel_memmove (void *to, const void *from, size_t len) {
+void *kernel_memmove(void *to, const void *from, size_t len) {
 #ifdef __i386__
 	/* This assembly code is stolen from
 	   linux-2.2.2/include/asm-i386/string.h. This is not very fast
@@ -111,17 +111,25 @@ long int kernel_atol(const char *s) {
 	int c;			/* current char */
 	long int total;		/* current total */
 	int sign;		/* if '-', then negative, otherwise positive */
+	int mult = 10;
 
 	while(isspace((unsigned char)*s)) s++;
 	c = *s++;
 	sign = c;		/* save sign indication */
-	if (c == '-' || c == '+') c = *s++;
+	if(c == '-' || c == '+') c = *s++;
+	if(c == '0' && *s == 'x') {
+		// Will switch to hex mode when the string are start with "0x"
+		mult = 16;
+		c = *++s;
+		s++;
+	}
 	total = 0;
-	while (c >= '0' && c <= '9') {
-		total = 10 * total + (c - '0');
+	while((c >= '0' && c <= '9') || (mult == 16 &&
+	((c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')))) {
+		total = mult * total + (c - (isalpha(c) ? (islower(c) ? 87 : 55) : '0'));
 		c = *s++;
 	}
-	if (sign == '-') return -total;
+	if(sign == '-') return -total;
 	return total;
 }
 

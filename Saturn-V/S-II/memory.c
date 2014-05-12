@@ -33,11 +33,11 @@ void init_memory() {
 	unsigned long int count = 0;
 
 	kernel_printf("Getting lower memory...");
-	saved_mem_lower = get_memsize (0);
+	saved_mem_lower = get_memsize(0);
 	kernel_printf(" %luKB\n", saved_mem_lower);
 
 	kernel_printf("Getting upper memory...");
-	saved_mem_upper = get_memsize (1);
+	saved_mem_upper = get_memsize(1);
 	kernel_printf(" %luKB\n", saved_mem_upper);
 
 	kernel_puts("Turning on gate A20...");
@@ -72,6 +72,7 @@ void kernel_malloc_init(void *start) {
 }
 
 void *kernel_malloc(size_t numbytes) {
+	kernel_printf("function: kernel_malloc(%u)\n", numbytes);
 	void *current_location;
 	void *memory_location;
 	void *tmp_location;
@@ -89,6 +90,7 @@ void *kernel_malloc(size_t numbytes) {
 	current_location = managed_address_start;
 	//如果当前内存偏移不等于当前内存断址，开始循环寻找可用内存
 	while(current_location != last_address) {
+		kernel_printf("current_location = 0x%x\nlast_address = 0x%x\n", current_location, last_address);
 		current_location_mcb = (struct mem_control_block *)current_location;
 		if(current_location_mcb->is_available) { 
 			//如果此块内存空间大小正好等于申请大小
@@ -132,7 +134,9 @@ void *kernel_malloc(size_t numbytes) {
 
 		}
 		//放弃此段内存空间，向下寻找合适内存空间
-		current_location = (char *)current_location + current_location_mcb->size;
+		size_t current_size = current_location_mcb->size;
+		kernel_printf("current_size = %u\n", current_size);
+		current_location = (char *)current_location + current_size;
 	}
 
 	if(!memory_location) {
@@ -169,4 +173,3 @@ void kernel_free(void *firstbyte) {
 	//Woo!! 成功释放内存，啦啦啦~~~
 	mcb->is_available = 1;
 }
-

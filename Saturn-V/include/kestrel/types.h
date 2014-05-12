@@ -11,6 +11,9 @@
 #ifndef _KESTREL_TYPES_H
 #define _KESTREL_TYPES_H
 
+#define isalpha(c) (islower(c) || isupper(c))
+#define islower(c) ((c) <= 'z' && (c) >= 'a')
+#define isupper(c) ((c) <= 'Z' && (c) >= 'A')
 #define isspace(c) ((c) == ' ' || (c) == '\t')
 
 typedef unsigned int size_t;
