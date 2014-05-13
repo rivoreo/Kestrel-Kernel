@@ -10,19 +10,24 @@
 
 #include <kestrel/kernel.h>
 #include <kestrel/shell.h>
+#include <kestrel/types.h>
 
 int use_config_file = 1;
 int last_status = 0;
 
 static void commandline_to_multistring(char *s) {
-	char *space = " \t\r\n";
+	//char *space = " \t\r\n";
 	//char *quote = "\"\'";
 	char f = 1;
 	while(1) {
-		char *q;
-		if(f) for(q = space; *q; q++) if(*s == *q) {
+		//char *q;
+		//if(f) for(q = space; *q; q++) if(*s == *q) {
+		if(f && isspace(*s)) {
+			char *q = s;
 			*s = 0;
-			break;
+			//break;
+			while(*++q == ' ' || *q == '	');	// Cannot use isspace marco here (side effect)
+			if(q - s > 1) kernel_memmove(s + 1, q, kernel_strlen(q) + 1);
 		}
 		if(*s == '\"') {
 			f ^= 1;
@@ -42,11 +47,10 @@ static void commandline_to_multistring(char *s) {
 	return value: if found, returns a pointer to type command_t, or NULL if not found.
 */
 command_t *find_command(char *command) {
-	char *ptr;
+	char *ptr = command;
 	command_t **builtin;
 
 	/* Find the first space and terminate the command name.  */
-	ptr = command;
 	while(1) {
 		if(!*ptr) {
 			ptr[1] = ptr[0] = 0;
@@ -54,6 +58,9 @@ command_t *find_command(char *command) {
 		}
 		if(*ptr == ' ' || *ptr == '\t') {
 			*ptr++ = 0;
+			char *t = ptr;
+			while(*t == ' ' || *t == '\t') t++;
+			if(t - ptr) kernel_memmove(ptr, t, kernel_strlen(t) + 1);
 			commandline_to_multistring(ptr);
 			break;
 		}

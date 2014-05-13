@@ -279,7 +279,7 @@ static int read_image(char *s)
 */
 
 /* Convert a character which is a hex digit to the appropriate integer */
-int hex(int v)
+static int hex(int v)
 {
 	if (v >= 'A' && v <= 'F')
 		return (v - 'A' + 10);

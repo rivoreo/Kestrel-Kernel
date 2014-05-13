@@ -15,6 +15,8 @@
 int console_getkey(void);
 void console_putchar(int);
 
+int console_getxy(void);
+
 int kernel_printf(const char *format, ...) {
 	int *dataptr = (int *)(void *)&format;
 	char c, *ptr, str[16];
@@ -105,6 +107,11 @@ int kernel_puts(const char *s) {
 
 int kernel_putchar(int c) {
 	if(c == '\n') kernel_putchar('\r');
+	else if(c == '	') {
+		int x = 9 - kernel_getx() % 8;
+		while(--x) kernel_putchar(' ');
+		return c;
+	}
 #ifdef SUPPORT_GRAPHICS
 	if(graphics_inited) return graphics_putchar(c);
 	else {
@@ -155,4 +162,13 @@ int kernel_getchar() {
 	c &= 0xff;
 	if(c != 8) kernel_putchar(c);
 	return c;
+}
+
+int kernel_getx() {
+	int xy =
+#ifdef SUPPORT_GRAPHICS
+		graphics_inited ? graphics_getxy() :
+#endif
+		console_getxy();
+	return xy >> 8;
 }
