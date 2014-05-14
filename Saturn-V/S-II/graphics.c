@@ -279,6 +279,7 @@ static int read_image(char *s)
 */
 
 /* Convert a character which is a hex digit to the appropriate integer */
+/*
 static int hex(int v)
 {
 	if (v >= 'A' && v <= 'F')
@@ -287,7 +288,7 @@ static int hex(int v)
 		return (v - 'a' + 10);
 	return (v - '0');
 }
-
+*/
 
 /* move the graphics cursor location to col, row */
 static void graphics_setxy(int col, int row)

@@ -39,9 +39,9 @@ int kernel_printf(const char *format, ...) {
 			c = *(format++);
 
 find_specifier:
-			switch (c) {
-				case 'l': c = *(format++); goto find_specifier;
-				case 'd': case 'x':	case 'X':  case 'u':
+			switch(c & 0xff) {
+				case 'l': c = (*(format++) | (c << 8)); goto find_specifier;
+				case 'd': case 'x': case 'X':  case 'u':
 					*convert_to_ascii(str, c, *((unsigned long *)dataptr++)) = 0;
 					width -= kernel_strlen(str);
 					if (width > 0) while(width--) {
@@ -73,7 +73,7 @@ find_specifier:
 					ptr = (char *)*(dataptr++);
 					if(!ptr) ptr = "(null)";
 					while ((c = *(ptr++)) != 0) {
-						kernel_putchar (c);
+						kernel_putchar(c);
 						r++;
 					}
 					break;
@@ -81,7 +81,7 @@ find_specifier:
 					pad = '0';
 				case '1' ... '9':
 					width = c - '0';
-					while ((c = *(format++)) >= '0' && c <= '9') {
+					while((c = *(format++)) >= '0' && c <= '9') {
 						width = width * 10 + c - '0';
 					}
 					goto find_specifier;
@@ -149,6 +149,7 @@ char *kernel_gets(char *buffer, size_t max_len) {
 			}
 			continue;
 		}
+		if(c == '	') continue;
 		buffer[count++] = c;
 	}
 	buffer[count] = 0;
@@ -160,7 +161,7 @@ int kernel_getchar() {
 	int c = console_getkey();
 	if(c == -1) return -1;
 	c &= 0xff;
-	if(c != 8) kernel_putchar(c);
+	if(c != 8 && c != '	') kernel_putchar(c);
 	return c;
 }
 

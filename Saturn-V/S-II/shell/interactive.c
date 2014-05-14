@@ -12,9 +12,12 @@
 #include <kestrel/shell.h>
 #include <mstring.h>
 
+#define USE_ARRAY
+
 void enter_shell() {
 	//char *buffer = (char *)heap;
-	char *buffer = kernel_alloc(MAX_COMMAND * sizeof(char));
+	//char *buffer = kernel_alloc(MAX_COMMAND * sizeof(char));
+	char buffer[MAX_COMMAND];
 	command_t *command;
 
 	kernel_printf("Kestrel Kernel build-in shell\n\n");
@@ -33,14 +36,21 @@ void enter_shell() {
 			continue;
 		}
 		int _argc;
+#ifndef USE_ARRAY
 		char **_argv;
-		//_argv = (char **)heap + MAX_COMMAND;
+#endif
 		int i = mstrcount(commandline);
 		_argc = i;
+#ifndef USE_ARRAY
 		_argv = (char **)kernel_alloc((i + 1) * sizeof(char *));
+#else
+		char *_argv[i+1];
+#endif
 		_argv[i] = NULL;
 		for(; i; i--) _argv[i-1] = mstrindex(commandline, i);
 		last_status = command->exec(_argc, _argv);
+#ifndef USE_ARRAY
 		kernel_free(_argv);
+#endif
 	}
 }

@@ -11,6 +11,8 @@
 #include <kestrel/kernel.h>
 #include <kestrel/shell.h>
 
+#define DECLARE_COMMAND(N,U) static command_t c_##N = { #N, N##_command, U }
+
 extern int argstest_command(int, char **);
 extern int date_command(int, char**);
 extern int echo_command(int, char **);
@@ -21,15 +23,15 @@ extern int mem_command(int, char **);
 extern int panic_command(int, char **);
 extern int reboot_command(int, char **);
 
-static command_t c_argstest = { "argstest", argstest_command, "argstest [<args>]" };
-static command_t c_date = { "date", date_command, "date [<option>] ... [+<format>]" };
-static command_t c_doublefree = { "doublefree", doublefree_command, "doublefree <free times>"};
-static command_t c_echo = { "echo", echo_command, "echo [-ne] <args>" };
-static command_t c_help = { "help", help_command, "help" };
-static command_t c_malloctest = { "malloctest", malloctest_command, "malloctest <count> [<size>]" };
-static command_t c_mem = { "mem", mem_command, "mem read|write <address> [<...>]" };
-static command_t c_panic = { "panic", panic_command, "panic <message> [<status>]" };
-static command_t c_reboot = { "reboot", reboot_command, "reboot" };
+DECLARE_COMMAND(argstest, "argstest [<args>]");
+DECLARE_COMMAND(date, "date [<option>] ... [+<format>]");
+DECLARE_COMMAND(doublefree, "doublefree <free times>");
+DECLARE_COMMAND(echo, "echo [-ne] <args>");
+DECLARE_COMMAND(help, "help");
+DECLARE_COMMAND(malloctest, "malloctest <count> [<size>]");
+DECLARE_COMMAND(mem, "mem read|write <address> [<...>]");
+DECLARE_COMMAND(panic, "panic <message> [<status>]");
+DECLARE_COMMAND(reboot, "reboot");
 
 command_t *command_table[] = {
 	&c_argstest,

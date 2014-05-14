@@ -11,6 +11,8 @@
 #include <kestrel/kernel.h>
 #include <kestrel/errno.h>
 
+//#define STEP_SIZE 4096
+
 unsigned long int saved_mem_lower;
 unsigned long int saved_mmap_addr;
 unsigned long int saved_mmap_length;
@@ -22,6 +24,7 @@ static void *heap = NULL;
 
 static void *last_address;
 static void *managed_address_start;
+//static void *managed_address_end;
 static int allocater_is_inited = 0;
 
 void *get_kernel_heap() {
@@ -65,44 +68,54 @@ void init_memory() {
 	kernel_malloc_init(get_kernel_heap());
 }
 
+/*
+void kernel_malloc_manage(void *a, size_t len) {
+	//kernel_memset(a, 0, len);
+	char *p = a;
+	while(len--) *p++ = 0;
+	managed_address_end = (char *)a + len;
+}*/
+
 void kernel_malloc_init(void *start) {
 	//开始管理内存首地址
 	managed_address_start = last_address = start;
+	//kernel_malloc_manage(managed_address_start, STEP_SIZE);
 	allocater_is_inited = 1;
 }
 
 void *kernel_malloc(size_t numbytes) {
-	kernel_printf("function: kernel_malloc(%u)\n", numbytes);
+	//kernel_printf("function: kernel_malloc(%u)\n", numbytes);
 	void *current_location;
 	void *memory_location;
 	void *tmp_location;
 	struct mem_control_block *tmp_location_mcb;
 	struct mem_control_block *current_location_mcb;
-	//如果首地址未被初始化，则执行kernel_malloc_init()
+	// 如果首地址未被初始化，则执行 kernel_malloc_init()
 	if(!allocater_is_inited) {
 		kernel_malloc_init(get_kernel_heap());
 	}
-	//应初始化的内存实际为numbytes+mcb控制块所占内存
+	// 应初始化的内存实际为numbytes+mcb控制块所占内存
 	numbytes = numbytes + sizeof(struct mem_control_block);
-	//用于下面判断是否改继续申请内存
+	// 用于下面判断是否改继续申请内存
 	memory_location = 0;
 	tmp_location = 0;
 	current_location = managed_address_start;
-	//如果当前内存偏移不等于当前内存断址，开始循环寻找可用内存
+	// 如果当前内存偏移不等于当前内存断址，开始循环寻找可用内存
 	while(current_location != last_address) {
-		kernel_printf("current_location = 0x%x\nlast_address = 0x%x\n", current_location, last_address);
+		//kernel_printf("current_location = 0x%x\nlast_address = 0x%x\n", current_location, last_address);
 		current_location_mcb = (struct mem_control_block *)current_location;
-		if(current_location_mcb->is_available) { 
-			//如果此块内存空间大小正好等于申请大小
+		//if(current_location_mcb->is_available || !current_location_mcb->size) {
+		if(current_location_mcb->is_available) {
 			if(current_location_mcb->size == numbytes) {
+				// 如果此块内存空间大小正好等于申请大小
 				current_location_mcb->is_available = 0;
 				memory_location = current_location;
 				break;
-				//如果大小不够，尝试进行内存整理
 			} else if(current_location_mcb->size < numbytes) {
+				// 如果大小不够，尝试进行内存整理
 				tmp_location = (char *)current_location + current_location_mcb->size;
 				tmp_location_mcb = (struct mem_control_block*)tmp_location;
-				//判断此mcb是否为内存断址
+				// 判断此mcb是否为内存断址
 				if(tmp_location >= last_address) {
 					//放弃此段内存空间，向下寻找合适内存空间
 					current_location = (char *)current_location + current_location_mcb->size;
@@ -132,11 +145,24 @@ void *kernel_malloc(size_t numbytes) {
 				break;
 			}
 
+		} else if(!current_location_mcb->size) {
+			memory_location = current_location;
+			break;
+		} else if(current_location_mcb->size > 65536) {
+			panic("kernel_malloc: current_location_mcb->size too large");
 		}
 		//放弃此段内存空间，向下寻找合适内存空间
 		size_t current_size = current_location_mcb->size;
 		kernel_printf("current_size = %u\n", current_size);
+		if(!current_size) panic("kernel_malloc: MCB Size Exception");
 		current_location = (char *)current_location + current_size;
+		/*
+		if(current_location >= managed_address_end) {
+			if((char *)current_location >= (char *)managed_address_end + STEP_SIZE) {
+				panic("kernel_malloc: current_location out of STEP_SIZE");
+			}
+			kernel_malloc_manage(managed_address_end, STEP_SIZE);
+		}*/
 	}
 
 	if(!memory_location) {
