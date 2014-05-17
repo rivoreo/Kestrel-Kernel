@@ -15,6 +15,8 @@
 int console_getkey(void);
 void console_putchar(int);
 
+int console_getxy(void);
+
 int kernel_printf(const char *format, ...) {
 	int *dataptr = (int *)(void *)&format;
 	char c, *ptr, str[16];
@@ -37,9 +39,9 @@ int kernel_printf(const char *format, ...) {
 			c = *(format++);
 
 find_specifier:
-			switch (c) {
-				case 'l': c = *(format++); goto find_specifier;
-				case 'd': case 'x':	case 'X':  case 'u':
+			switch(c & 0xff) {
+				case 'l': c = (*(format++) | (c << 8)); goto find_specifier;
+				case 'd': case 'x': case 'X':  case 'u':
 					*convert_to_ascii(str, c, *((unsigned long *)dataptr++)) = 0;
 					width -= kernel_strlen(str);
 					if (width > 0) while(width--) {
@@ -71,7 +73,7 @@ find_specifier:
 					ptr = (char *)*(dataptr++);
 					if(!ptr) ptr = "(null)";
 					while ((c = *(ptr++)) != 0) {
-						kernel_putchar (c);
+						kernel_putchar(c);
 						r++;
 					}
 					break;
@@ -79,7 +81,7 @@ find_specifier:
 					pad = '0';
 				case '1' ... '9':
 					width = c - '0';
-					while ((c = *(format++)) >= '0' && c <= '9') {
+					while((c = *(format++)) >= '0' && c <= '9') {
 						width = width * 10 + c - '0';
 					}
 					goto find_specifier;
@@ -105,6 +107,11 @@ int kernel_puts(const char *s) {
 
 int kernel_putchar(int c) {
 	if(c == '\n') kernel_putchar('\r');
+	else if(c == '	') {
+		int x = 9 - kernel_getx() % 8;
+		while(--x) kernel_putchar(' ');
+		return c;
+	}
 #ifdef SUPPORT_GRAPHICS
 	if(graphics_inited) return graphics_putchar(c);
 	else {
@@ -142,6 +149,7 @@ char *kernel_gets(char *buffer, size_t max_len) {
 			}
 			continue;
 		}
+		if(c == '	') continue;
 		buffer[count++] = c;
 	}
 	buffer[count] = 0;
@@ -153,6 +161,15 @@ int kernel_getchar() {
 	int c = console_getkey();
 	if(c == -1) return -1;
 	c &= 0xff;
-	if(c != 8) kernel_putchar(c);
+	if(c != 8 && c != '	') kernel_putchar(c);
 	return c;
+}
+
+int kernel_getx() {
+	int xy =
+#ifdef SUPPORT_GRAPHICS
+		graphics_inited ? graphics_getxy() :
+#endif
+		console_getxy();
+	return xy >> 8;
 }

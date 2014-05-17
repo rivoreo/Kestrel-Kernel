@@ -53,7 +53,7 @@ void *kernel_memcpy(void *to, const void *from, size_t n) {
 	return to;
 }
 
-void *kernel_memmove (void *to, const void *from, size_t len) {
+void *kernel_memmove(void *to, const void *from, size_t len) {
 #ifdef __i386__
 	/* This assembly code is stolen from
 	   linux-2.2.2/include/asm-i386/string.h. This is not very fast
@@ -111,17 +111,25 @@ long int kernel_atol(const char *s) {
 	int c;			/* current char */
 	long int total;		/* current total */
 	int sign;		/* if '-', then negative, otherwise positive */
+	int mult = 10;
 
 	while(isspace((unsigned char)*s)) s++;
 	c = *s++;
 	sign = c;		/* save sign indication */
-	if (c == '-' || c == '+') c = *s++;
+	if(c == '-' || c == '+') c = *s++;
+	if(c == '0' && *s == 'x') {
+		// Will switch to hex mode when the string are start with "0x"
+		mult = 16;
+		c = *++s;
+		s++;
+	}
 	total = 0;
-	while (c >= '0' && c <= '9') {
-		total = 10 * total + (c - '0');
+	while((c >= '0' && c <= '9') || (mult == 16 &&
+	((c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')))) {
+		total = mult * total + (c - (isalpha(c) ? (islower(c) ? 87 : 55) : '0'));
 		c = *s++;
 	}
-	if (sign == '-') return -total;
+	if(sign == '-') return -total;
 	return total;
 }
 
@@ -130,8 +138,48 @@ int kernel_atoi(const char *s) {
 }
 
 char *convert_to_ascii(char *buf, int c, ...) {
-	unsigned long num = *((&c) + 1), mult = 10;
 	char *ptr = buf;
+	char l = c >> 8;
+	c &= 0xff;
+
+	if(c == 'e' || c == 'f' || c == 'g') {
+		if(l) {
+			// double
+			//unsigned long int n[2];
+			//kernel_memcpy(n, &c + 1, 8);
+			//double num;
+			union {
+				double f;
+				unsigned char a[8];
+			} num;
+			kernel_memcpy(&num, &c + 1, 8);
+			//switch
+		} else {
+			/*
+			//unsigned long int n = (&c)[1];
+			unsigned char n[4];
+			float num;
+			*/
+			union {
+				float f;
+				unsigned long int l;
+				unsigned char a[4];
+			} num;
+			kernel_memcpy(&num, &c + 1, 4);
+			switch(num.l) {
+				case 0xfffffff:
+					kernel_memcpy(ptr, "nan", 3);
+					return ptr + 3;
+				case 0x7f80000:
+				case 0xff80000:
+					kernel_memcpy(ptr, "inf", 3);
+					return ptr + 3;
+			}
+			
+		}
+	}
+
+	unsigned long num = (&c)[1], mult = 10;
 
 	if (c == 'x' || c == 'X') mult = 16;
 

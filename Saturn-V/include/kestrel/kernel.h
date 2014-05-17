@@ -64,6 +64,8 @@ int kernel_getchar(void);
 //int kernel_gets(char *, size_t);
 char *kernel_gets(char *, size_t);
 
+int kernel_getx(void);
+
 void *kernel_malloc(size_t);
 void kernel_free(void *);
 

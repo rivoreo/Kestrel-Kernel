@@ -22,7 +22,7 @@ int graphics_setcursor(int);
 int graphics_init(void);
 void graphics_end(void);
 
-int hex(int);
+//int hex(int);
 void graphics_set_palette(int, int, int, int);
 
 

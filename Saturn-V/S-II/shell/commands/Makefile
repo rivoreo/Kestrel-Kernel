@@ -11,6 +11,7 @@ COMMANDS = \
 	echo.o \
 	help.o \
 	malloctest.o \
+	mem.o \
 	panic.o \
 	reboot.o
 
