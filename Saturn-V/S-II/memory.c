@@ -85,16 +85,17 @@ void *kernel_malloc(size_t numbytes) {
 	numbytes = numbytes + sizeof(struct mem_control_block);
 	//用于下面判断是否改继续申请内存
 	memory_location = 0;
-	tmp_location = 0;
+	tmp_location = managed_address_start;
 	current_location = managed_address_start;
 	//如果当前内存偏移不等于当前内存断址，开始循环寻找可用内存
 	while(current_location != last_address) {
 		current_location_mcb = (struct mem_control_block *)current_location;
 		if(current_location_mcb->is_available) { 
-			//如果此块内存空间大小正好等于申请大小
+			//如果此块内存空间大小正好等于申请大小 
 			if(current_location_mcb->size == numbytes) {
 				current_location_mcb->is_available = 0;
 				memory_location = current_location;
+				current_location = (char *)current_location + current_location_mcb->size;
 				break;
 				//如果大小不够，尝试进行内存整理
 			} else if(current_location_mcb->size < numbytes) {
@@ -104,12 +105,14 @@ void *kernel_malloc(size_t numbytes) {
 				if(tmp_location >= last_address) {
 					//放弃此段内存空间，向下寻找合适内存空间
 					current_location = (char *)current_location + current_location_mcb->size;
-					break;
+					continue;
+					//break;
 					//如果下一段内存空间被占用，放弃使用此块内存
 				} else if(!tmp_location_mcb->is_available) {
 					//放弃此段内存空间，向下寻找合适内存空间
 					current_location = (char *)current_location + current_location_mcb->size;
-					break;
+					continue;
+					//break;
 				} else {
 					//合并相邻内存空间，使其成为一块大的内存空间
 					current_location_mcb->size += tmp_location_mcb->size;
@@ -127,12 +130,14 @@ void *kernel_malloc(size_t numbytes) {
 				tmp_location = (char *)current_location + current_location_mcb->size;
 				tmp_location_mcb = (struct mem_control_block*)tmp_location;
 				memory_location = current_location;
+				current_location = (char *)current_location + current_location_mcb->size;
 				break;
 			}
 
 		}
 		//放弃此段内存空间，向下寻找合适内存空间
-		current_location = (char *)current_location + current_location_mcb->size;
+		//在这放置下面的代码会导致alloc无限循环
+		//current_location = (char *)current_location + current_location_mcb->size;
 	}
 
 	if(!memory_location) {
