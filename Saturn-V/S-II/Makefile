@@ -7,7 +7,11 @@ endif
 ifndef $(ECHO)
 ECHO = ../tools/echo
 endif
+ifeq ($(OS_NAME),Cygwin)
+LD  = ld -mi386pe
+else
 LD = ld -melf_i386
+endif
 #OBJCOPY = objcopy --only-section=.text
 OBJCOPY = objcopy -R .note -R .comment -R .note.gnu.build-id
 #OBJCOPY = objcopy

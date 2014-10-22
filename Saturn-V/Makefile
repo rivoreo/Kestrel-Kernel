@@ -1,5 +1,6 @@
 export ARCH = x86
-export ECHO := $(PWD)/tools/echo
+export ECHO = $(PWD)/tools/echo
+export OS_NAME = $(shell uname -o)
 
 first:	$(ECHO) kestrel
 
