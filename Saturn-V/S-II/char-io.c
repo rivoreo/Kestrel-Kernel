@@ -8,14 +8,25 @@
 	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 */
 
+#include "shared.h"
 #include <kestrel/kernel.h>
 #include <kestrel/graphics.h>
 #include <kestrel/errno.h>
+
+#define BUF_SIZE 64
 
 int console_getkey(void);
 void console_putchar(int);
 
 int console_getxy(void);
+
+struct char_buffer {
+	volatile int front, rear;
+	volatile char data[BUF_SIZE];
+} input_buffer;
+
+void input_buffer_put(int);
+int input_buffer_get(void);
 
 int kernel_printf(const char *format, ...) {
 	int *dataptr = (int *)(void *)&format;
@@ -114,13 +125,9 @@ int kernel_putchar(int c) {
 	}
 #ifdef SUPPORT_GRAPHICS
 	if(graphics_inited) return graphics_putchar(c);
-	else {
 #endif
-		console_putchar(c);
-		return c;
-#ifdef SUPPORT_GRAPHICS
-	}
-#endif
+	console_putchar(c);
+	return c;
 }
 
 #if 0
@@ -158,11 +165,17 @@ char *kernel_gets(char *buffer, size_t max_len) {
 #endif
 
 int kernel_getchar() {
+#if 0
 	int c = console_getkey();
+#else
+	while(input_buffer.front == input_buffer.rear) __asm__("hlt\n");
+	int c = input_buffer_get();
 	if(c == -1) return -1;
 	c &= 0xff;
+	//kernel_printf("c = %d\n", c);
 	if(c != 8 && c != '	') kernel_putchar(c);
 	return c;
+#endif
 }
 
 int kernel_getx() {
@@ -172,4 +185,37 @@ int kernel_getx() {
 #endif
 		console_getxy();
 	return xy >> 8;
+}
+
+void input_buffer_put(int code) {
+	//kernel_printf("function: char_buffer_add(%d)\n", code);
+	//kernel_putchar(code);
+	/*
+	extern unsigned int test_number;
+	test_number++;
+	__asm__("cli\n");*/
+/*
+	__asm__("	movb	$0x61, %%al\n"
+		"	outb	%%al, $0x20\n"
+		::: "%eax");*/
+
+	int c = keycode_to_ascii(code);
+	//kernel_putchar(c);
+	int reversed = input_buffer.front < input_buffer.rear;
+	if(reversed && input_buffer.rear - input_buffer.front < 2) return;
+	if(input_buffer.front + 1 == BUF_SIZE) {
+		if(!input_buffer.rear) return;
+		input_buffer.data[input_buffer.front] = c;
+		input_buffer.front = 0;
+		return;
+	}
+	input_buffer.data[input_buffer.front++] = c;
+	//if(!reversed && input_buffer.front == BUF_SIZE) input_buffer.front = 0;
+}
+
+int input_buffer_get() {
+	if(input_buffer.front == input_buffer.rear) return -1;
+	int r = input_buffer.data[input_buffer.rear++];
+	if(input_buffer.rear == BUF_SIZE) input_buffer.rear = 0;
+	return r;
 }

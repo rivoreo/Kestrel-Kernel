@@ -12,22 +12,37 @@
 #include <kestrel/time.h>
 #include <kestrel/asm/io.h>
 
-int gettime(struct tm *time) {
+static time_t _startup_clock;
+
+void save_kernel_startup_clock() {
+	struct tm t;
+	gettime(&t);
+	_startup_clock = mktime_sec(&t);
+}
+
+time_t get_startup_clock() {
+	if(!_startup_clock) {
+		return -1;
+	}
+	return _startup_clock;
+}
+
+int gettime(struct tm *t) {
 	//return get_bios_time();
 	do {
-		time->tm_sec = CMOS_READ (0);
-		time->tm_min = CMOS_READ (2);
-		time->tm_hour = CMOS_READ (4);
-		time->tm_mday = CMOS_READ (7);
-		time->tm_mon = CMOS_READ (8);
-		time->tm_year = CMOS_READ (9);
-	} while (time->tm_sec != CMOS_READ (0));
-	BCD_TO_BIN (time->tm_sec);
-	BCD_TO_BIN (time->tm_min);
-	BCD_TO_BIN (time->tm_hour);
-	BCD_TO_BIN (time->tm_mday);
-	BCD_TO_BIN (time->tm_mon);
-	BCD_TO_BIN (time->tm_year);
+		t->tm_sec = CMOS_READ(0);
+		t->tm_min = CMOS_READ(2);
+		t->tm_hour = CMOS_READ(4);
+		t->tm_mday = CMOS_READ(7);
+		t->tm_mon = CMOS_READ(8);
+		t->tm_year = CMOS_READ(9);
+	} while(t->tm_sec != CMOS_READ(0));
+	BCD_TO_BIN(t->tm_sec);
+	BCD_TO_BIN(t->tm_min);
+	BCD_TO_BIN(t->tm_hour);
+	BCD_TO_BIN(t->tm_mday);
+	BCD_TO_BIN(t->tm_mon);
+	BCD_TO_BIN(t->tm_year);
 	return 0;
 }
 
@@ -86,4 +101,3 @@ time_t mktime_sec(struct tm *tm)
 	res += tm->tm_sec;		// 再加上1 分钟内已过的秒数。
 	return res;			// 即等于从1970 年以来经过的秒数时间。
 }
-

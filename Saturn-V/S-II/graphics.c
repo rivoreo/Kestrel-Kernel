@@ -119,7 +119,7 @@ int graphics_init(void)
 void graphics_end(void)
 {
 	if (graphics_inited) {
-		set_videomode (saved_videomode);
+		set_videomode(saved_videomode);
 		graphics_inited = 0;
 	}
 	errno = 0;

@@ -22,6 +22,7 @@ extern int malloctest_command(int, char **);
 extern int mem_command(int, char **);
 extern int panic_command(int, char **);
 extern int reboot_command(int, char **);
+extern int testint_command(int, char **);
 
 DECLARE_COMMAND(argstest, "argstest [<args>]");
 DECLARE_COMMAND(date, "date [<option>] ... [+<format>]");
@@ -32,6 +33,7 @@ DECLARE_COMMAND(malloctest, "malloctest <count> [<size>]");
 DECLARE_COMMAND(mem, "mem read|write <address> [<...>]");
 DECLARE_COMMAND(panic, "panic <message> [<status>]");
 DECLARE_COMMAND(reboot, "reboot");
+DECLARE_COMMAND(testint, "testint <number>");
 
 command_t *command_table[] = {
 	&c_argstest,
@@ -43,5 +45,6 @@ command_t *command_table[] = {
 	&c_mem,
 	&c_panic,
 	&c_reboot,
+	&c_testint,
 	NULL
 };

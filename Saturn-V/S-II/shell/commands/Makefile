@@ -13,7 +13,8 @@ COMMANDS = \
 	malloctest.o \
 	mem.o \
 	panic.o \
-	reboot.o
+	reboot.o \
+	testint.o
 
 commands.a:	$(COMMANDS)
 	$(AR) r $@ $^
