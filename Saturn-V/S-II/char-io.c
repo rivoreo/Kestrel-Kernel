@@ -19,9 +19,11 @@ int console_getkey(void);
 void console_putchar(int);
 
 int console_getxy(void);
+void console_gotoxy(int, int);
 
 struct char_buffer {
 	volatile int front, rear;
+	volatile unsigned char line;
 	volatile char data[BUF_SIZE];
 } input_buffer;
 
@@ -126,7 +128,9 @@ int kernel_putchar(int c) {
 #ifdef SUPPORT_GRAPHICS
 	if(graphics_inited) return graphics_putchar(c);
 #endif
+	__asm__("cli\n");
 	console_putchar(c);
+	__asm__("sti\n");
 	return c;
 }
 
@@ -168,23 +172,78 @@ int kernel_getchar() {
 #if 0
 	int c = console_getkey();
 #else
-	while(input_buffer.front == input_buffer.rear) __asm__("hlt\n");
+	while(input_buffer.front == input_buffer.rear || !input_buffer.line) __asm__("hlt\n");
 	int c = input_buffer_get();
 	if(c == -1) return -1;
 	c &= 0xff;
 	//kernel_printf("c = %d\n", c);
-	if(c != 8 && c != '	') kernel_putchar(c);
+	//if(c != 8 && c != '	') kernel_putchar(c);
 	return c;
 #endif
 }
 
-int kernel_getx() {
+int kernel_getxy() {
 	int xy =
 #ifdef SUPPORT_GRAPHICS
 		graphics_inited ? graphics_getxy() :
 #endif
 		console_getxy();
-	return xy >> 8;
+	return xy;
+}
+
+int kernel_getx() {
+	return kernel_getxy() >> 8;
+}
+
+int kernel_gety() {
+	return kernel_getxy() & 0xff;
+}
+
+void kernel_gotoxy(int x, int y) {
+#ifdef SUPPORT_GRAPHICS
+	graphics_inited ? graphics_gotoxy(x, y) :
+#endif
+	console_gotoxy(x, y);
+}
+
+int keycode_to_ascii(int code) {
+/*
+	static char keymap[] = {
+		-1, 0x1b, '1', '2', '3', '4', '5', '6', '7'
+	}*/
+	static char en_keymap1[] = "	qwertyuiop[]\r";
+	static char en_keymap2[] = "asdfghjkl;'";
+	static char en_keymap3[] = "\\zxcvbnm,./";
+	static char extra_number_keymap[] = "789-456+1230.";
+	switch(code) {
+		case 0x1:
+			return 0x1b;
+		case 0x2 ... 0xa:
+			return code + 0x2f;
+		case 0xb:
+			return 0x30;
+		case 0xc:
+			return '-';
+		case 0xd:
+			return '=';
+		case 0xe:
+			return 8;
+		case 0xf ... 0x1c:
+			return en_keymap1[code - 0xf];
+		case 0x1d:
+			return 0x1;
+		case 0x1e ... 0x29:
+			return en_keymap2[code - 0x1e];
+		case 0x2b ... 0x35:
+			return en_keymap3[code - 0x2b];
+		case 0x37:
+			return '*';		// Extra
+		case 0x39:
+			return ' ';
+		case 0x47 ... 0x53:
+			return extra_number_keymap[code - 0x47];
+	}
+	return -2;
 }
 
 void input_buffer_put(int code) {
@@ -200,7 +259,40 @@ void input_buffer_put(int code) {
 		::: "%eax");*/
 
 	int c = keycode_to_ascii(code);
-	//kernel_putchar(c);
+	switch(c) {
+		case -2:
+			return;
+		case 8: {
+			//kernel_putchar('!');
+			if(input_buffer.front == input_buffer.rear) return;
+			//printf("%d, %d\n", input_buffer.front, input_buffer.rear);
+			int xy = kernel_getxy();
+			int x = xy >> 8, y;
+			if(x) {
+				x--;
+				y = xy & 0xff;
+			} else {
+				x = 79;
+				y = (xy & 0xff) - 1;
+			}
+			//kernel_putchar(8);
+			kernel_gotoxy(x, y);
+			kernel_putchar(' ');
+			kernel_gotoxy(x, y);
+			//kernel_putchar(8);
+			input_buffer.front--;
+			return;
+		}
+		case 1:
+		case '	':
+			break;
+		case '\r':
+			input_buffer.line = 1;
+		default:
+			kernel_putchar(c);
+			break;
+	}
+	__asm__("cli\n");
 	int reversed = input_buffer.front < input_buffer.rear;
 	if(reversed && input_buffer.rear - input_buffer.front < 2) return;
 	if(input_buffer.front + 1 == BUF_SIZE) {
@@ -217,5 +309,6 @@ int input_buffer_get() {
 	if(input_buffer.front == input_buffer.rear) return -1;
 	int r = input_buffer.data[input_buffer.rear++];
 	if(input_buffer.rear == BUF_SIZE) input_buffer.rear = 0;
+	if(input_buffer.front == input_buffer.rear) input_buffer.line = 0;
 	return r;
 }

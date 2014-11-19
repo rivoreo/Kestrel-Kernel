@@ -9887,7 +9887,7 @@ ENTRY(console_putchar)
 	.code16
 
 	//sti		/* it is not bad keeping interrupt off */
-	sti		/* for hardware interrupt or watchdog */
+	#sti		/* for hardware interrupt or watchdog */
 
 	movb	%dl, %al
 	xorb	%bh, %bh
@@ -9948,7 +9948,7 @@ ENTRY(console_putchar)
 	.code32
 
 	popa
-	sti
+	#sti
 	ret
 
 
@@ -10034,6 +10034,7 @@ ENTRY(ascii_key_map)
 	.space	(KEY_MAP_SIZE + 1) * 2
 
 
+/*
 ENTRY(keycode_to_ascii)
 	push	%ebp
 	push	%edx
@@ -10055,7 +10056,7 @@ ENTRY(keycode_to_ascii)
 
 	sti
 	ret
-
+*/
 
 /*
  * int console_getkey (void)
@@ -10168,7 +10169,7 @@ ENTRY(console_getxy)
 	.code16
 
 	//sti		/* it is not bad keeping interrupt off */
-	sti		/* for hardware interrupt or watchdog */
+	#sti		/* for hardware interrupt or watchdog */
 
         xorb	%bh, %bh                /* set page to 0 */
 	movb	$0x3, %ah
@@ -10180,7 +10181,7 @@ ENTRY(console_getxy)
 	movb	%dl, %ah
 	movb	%dh, %al
 
-	sti
+	#sti
 
 	pop	%ebx
 	pop	%ebp
@@ -10209,7 +10210,7 @@ ENTRY(console_gotoxy)
 	.code16
 
 	//sti		/* it is not bad keeping interrupt off */
-	sti		/* for hardware interrupt or watchdog */
+	#sti		/* for hardware interrupt or watchdog */
 
         xorb	%bh, %bh                /* set page to 0 */
 	movb	$0x2, %ah
@@ -10218,7 +10219,7 @@ ENTRY(console_gotoxy)
 	DATA32	call	EXT_C(real_to_prot)
 	.code32
 
-	sti
+	#sti
 
 	pop	%ebx
 	pop	%ebp
