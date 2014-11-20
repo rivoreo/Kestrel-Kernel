@@ -15,6 +15,10 @@
 
 #define BUF_SIZE 64
 
+/* Default SHIFT NOT PRESSED */
+static int shift_pressed = 0;
+static int shift_checked = 1;
+
 int console_getkey(void);
 void console_putchar(int);
 
@@ -215,6 +219,13 @@ int keycode_to_ascii(int code) {
 	static char en_keymap2[] = "asdfghjkl;'";
 	static char en_keymap3[] = "\\zxcvbnm,./";
 	static char extra_number_keymap[] = "789-456+1230.";
+
+	static char en_shift_keymap1[] = "	QWERTYUIOP{}\r";
+	static char en_shift_keymap2[] = "ASDFGHJKL:\"";
+	static char en_shift_keymap3[] = "|ZXCVBNM<>?";
+
+	enum {L_SHIFT_P=0x2a, R_SHIFT_P=0x36, L_SHIFT_R=0xAA, R_SHIFT_R=0xB6};
+
 	switch(code) {
 		case 0x1:
 			return 0x1b;
@@ -229,19 +240,46 @@ int keycode_to_ascii(int code) {
 		case 0xe:
 			return 8;
 		case 0xf ... 0x1c:
-			return en_keymap1[code - 0xf];
+			if(!shift_pressed){
+				return en_keymap1[code - 0xf];
+			}else{
+				return en_shift_keymap1[code - 0xf];
+			}
 		case 0x1d:
 			return 0x1;
 		case 0x1e ... 0x29:
-			return en_keymap2[code - 0x1e];
+			if(!shift_pressed){
+				return en_keymap2[code - 0x1e];
+			}else{
+				return en_shift_keymap2[code - 0x1e];
+			}
 		case 0x2b ... 0x35:
-			return en_keymap3[code - 0x2b];
+			if(!shift_pressed){
+				return en_keymap3[code - 0x2b];
+			}else{
+				return en_shift_keymap3[code - 0x2b];
+			}
 		case 0x37:
 			return '*';		// Extra
 		case 0x39:
 			return ' ';
 		case 0x47 ... 0x53:
 			return extra_number_keymap[code - 0x47];
+		case L_SHIFT_P:
+		case R_SHIFT_P:
+			shift_checked = 0;
+			shift_pressed = 1;
+			/* kernel_printf("shift pressed\n"); */
+			return;
+
+		/* release */
+		case L_SHIFT_R:
+		case R_SHIFT_R:
+			shift_checked = 0;
+			shift_pressed = 0;
+			/* kernel_printf("shift releaseed\n"); */
+			return;
+
 	}
 	return -2;
 }
@@ -259,6 +297,10 @@ void input_buffer_put(int code) {
 		::: "%eax");*/
 
 	int c = keycode_to_ascii(code);
+	if(!shift_checked) {
+		shift_checked = 1;
+		return;
+	}
 	switch(c) {
 		case -2:
 			return;
