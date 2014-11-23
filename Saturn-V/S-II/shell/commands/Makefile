@@ -9,6 +9,7 @@ COMMANDS = \
 	date.o \
 	doublefree.o \
 	echo.o \
+	graphics.o \
 	help.o \
 	malloctest.o \
 	mem.o \
