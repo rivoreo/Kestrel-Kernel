@@ -29,6 +29,12 @@ struct tm {
 	int tm_isdst;			// 夏令时标志。
 };
 
+// System Call
+time_t time(time_t *);
+
 int gettime(struct tm *);
+time_t mktime_sec(struct tm *);
+time_t get_startup_clock(void);
+void save_kernel_startup_clock(void);
 
 #endif

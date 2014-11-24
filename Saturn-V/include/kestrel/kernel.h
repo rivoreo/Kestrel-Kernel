@@ -39,6 +39,17 @@ struct mem_control_block {
 	size_t size;
 };
 
+struct gd {
+	short int offset_low, selector;
+	char count, access_right;
+	short int offset_high;
+} __attribute((packed));
+
+struct idtr {
+	short int limits;
+	struct gd *address;
+} __attribute((packed));
+
 void stop(void) __attribute__((__noreturn__));
 void panic(const char *) __attribute__((__noreturn__));
 void kernel_panic(const char *, int) __attribute__((__noreturn__));
@@ -82,6 +93,26 @@ int getrtsecs(void);
 void init_memory(void);
 void *get_kernel_heap(void);
 void kernel_malloc_init(void *);
+
+//void set_int20_handler(void);
+//void unset_int20_handler(void);
+
+void get_idtr(struct idtr *);
+void set_idtr(const struct idtr *);
+void set_gate_handler(struct gd *, int (*)(), int, int);
+
+void init_idt(void);
+
+void init_pic(void);
+
+int int20_handler();
+int int21_handler(void);
+int int27_handler(void);
+int int80_handler(int, ...);
+
+void init_timer(void);
+
+int keycode_to_ascii(int);
 
 //extern void *heap;
 

@@ -686,6 +686,7 @@ ENTRY(stop)
 hard_stop:
 	sti
 	hlt
+//	orb	$0x20, 0x417
 	jmp hard_stop
 
 VARIABLE(configfile_opened)
@@ -1308,6 +1309,131 @@ fault_recovery_handler:
 	iret
 
 	.code32
+
+
+/*
+ENTRY(set_int80_handler)
+	pushl	%edi
+	pushl	%eax
+	movl	$0x200, %edi
+	movl	$ABS(int80_handler), %eax
+	stosl
+	popl	%eax
+	popl	%edi
+	ret
+*/
+
+ENTRY(int80_handler)
+	call	systemcall
+	iret
+
+
+ENTRY(int27_handler)
+	pushw	%ax
+	sti
+	movb	$0x67, %al
+	outb	%al, $PIC0_OCW2
+	popw	%ax
+	iret
+
+
+ENTRY(int21_handler)
+	cli
+	pushw	%es
+	pushw	%ds
+	pushl	%eax
+	pushl	%ecx
+	pushl	%edx
+	pushl	%ebx
+	pushl	%esp
+	pushl	%ebp
+	pushl	%esi
+	pushl	%edi
+	movb	$0x61, %al
+	outb	%al, $PIC0_OCW2
+	xorl	%eax, %eax
+	movw	$0x0060, %dx
+	inb	%dx, %al
+	pushl	%eax
+	movw	%ss, %ax
+	movw	%ax, %ds
+	movw	%ax, %es
+	call	input_buffer_put
+	cli
+	popl	%eax
+	popl	%edi
+	popl	%esi
+	popl	%ebp
+	popl	%esp
+	popl	%ebx
+	popl	%edx
+	popl	%ecx
+	popl	%eax
+	popw	%ds
+	popw	%es
+	sti
+	iret
+
+
+/*
+ENTRY(set_int20_handler)
+	pushl	%edi
+	pushl	%eax
+#	pushl	%ebx
+	movb	$0x36, %al
+	outb	%al, $0x43
+	movw	$LATCH, %ax
+#	addw	$0xff, %ax
+	outb	%al, $0x40
+#	movw	$LATCH, %ax
+	sarw	$8, %ax
+	outb	%al, $0x40
+	movl	$0x68, %edi
+	movl	$ABS(int20_handler), %eax
+	stosl
+	popl	%edi
+	popl	%eax
+	ret
+*/
+
+
+ENTRY(int20_handler)
+	cli
+	pushw	%es
+	pushw	%ds
+#	pushad
+	pushl	%eax
+	pushl	%ecx
+	pushl	%edx
+	pushl	%ebx
+	pushl	%esp
+	pushl	%ebp
+	pushl	%esi
+	pushl	%edi
+	movb	$0x60, %al
+	outb	%al, $PIC0_OCW2
+	movl	%esp, %eax
+	pushl	%eax
+	movw	%ss, %ax
+	movw	%ax, %ds
+	movw	%ax, %es
+	call	timer_interrupt_handler
+	cli
+	popl	%eax
+#	popad
+	popl	%edi
+	popl	%esi
+	popl	%ebp
+	popl	%esp
+	popl	%ebx
+	popl	%edx
+	popl	%ecx
+	popl	%eax
+	popw	%ds
+	popw	%es
+	sti
+	iret
+
 
 /*
  * set_int15_handler(void)
@@ -7203,6 +7329,8 @@ protcseg:
 	/* zero %eax */
 	xorl	%eax, %eax
 
+	sti
+
 	/* return on the old (or initialized) stack! */
 	ret
 
@@ -9697,6 +9825,8 @@ ENTRY(toggle_blinking)
 	DATA32	call	EXT_C(real_to_prot)
 	.code32
 
+	sti
+
 	pop	%ebx
 	pop	%ebp
 	ret
@@ -9730,6 +9860,7 @@ ENTRY(get_bios_time)
 
 	movw	%bx, %ax
 	pop	%ebp
+	sti
 	ret
 
 
@@ -9756,7 +9887,7 @@ ENTRY(console_putchar)
 	.code16
 
 	//sti		/* it is not bad keeping interrupt off */
-	sti		/* for hardware interrupt or watchdog */
+	#sti		/* for hardware interrupt or watchdog */
 
 	movb	%dl, %al
 	xorb	%bh, %bh
@@ -9817,6 +9948,7 @@ ENTRY(console_putchar)
 	.code32
 
 	popa
+	#sti
 	ret
 
 
@@ -9903,6 +10035,30 @@ ENTRY(ascii_key_map)
 
 
 /*
+ENTRY(keycode_to_ascii)
+	push	%ebp
+	push	%edx
+#	push	%ebx
+	movl	0x4(%esp), %edx
+	call	EXT_C(prot_to_real)
+
+	.code16
+	call	remap_ascii_char
+
+	DATA32	call	EXT_C(real_to_prot)
+	.code32
+
+	movl	%edx, %eax
+
+#	pop	%ebx
+	pop	%edx
+	pop	%ebp
+
+	sti
+	ret
+*/
+
+/*
  * int console_getkey (void)
  * BIOS call "INT 16H Function 00H" to read character from keyboard
  *	Call with	%ah = 0x0
@@ -9937,6 +10093,8 @@ ENTRY(console_getkey)
 	.code32
 
 	movw	%dx, %ax
+
+	sti
 
 	pop	%ebp
 	ret
@@ -9984,6 +10142,8 @@ pending:
 
 	mov	%edx, %eax
 
+	sti
+
 	pop	%ebp
 	ret
 
@@ -10009,7 +10169,7 @@ ENTRY(console_getxy)
 	.code16
 
 	//sti		/* it is not bad keeping interrupt off */
-	sti		/* for hardware interrupt or watchdog */
+	#sti		/* for hardware interrupt or watchdog */
 
         xorb	%bh, %bh                /* set page to 0 */
 	movb	$0x3, %ah
@@ -10020,6 +10180,8 @@ ENTRY(console_getxy)
 
 	movb	%dl, %ah
 	movb	%dh, %al
+
+	#sti
 
 	pop	%ebx
 	pop	%ebp
@@ -10048,7 +10210,7 @@ ENTRY(console_gotoxy)
 	.code16
 
 	//sti		/* it is not bad keeping interrupt off */
-	sti		/* for hardware interrupt or watchdog */
+	#sti		/* for hardware interrupt or watchdog */
 
         xorb	%bh, %bh                /* set page to 0 */
 	movb	$0x2, %ah
@@ -10056,6 +10218,8 @@ ENTRY(console_gotoxy)
 
 	DATA32	call	EXT_C(real_to_prot)
 	.code32
+
+	#sti
 
 	pop	%ebx
 	pop	%ebp
@@ -10102,6 +10266,8 @@ ENTRY(console_cls)
 
 	DATA32	call	EXT_C(real_to_prot)
 	.code32
+
+	sti
 
 	pop	%ebx
 	pop	%ebp
@@ -10169,6 +10335,8 @@ ENTRY(console_setcursor)
 	movzbl	console_cursor_state, %eax
 	movb	%bl, console_cursor_state
 
+	sti
+
 	pop	%ebx
 	pop	%ebp
 	ret
@@ -10220,6 +10388,8 @@ ENTRY(set_videomode)
 	xorb	%ah, %ah
 	movb	%ch, %al
 
+	sti
+
 	pop	%ecx
 	pop	%ebx
 	pop	%ebp
@@ -10257,6 +10427,8 @@ ENTRY(graphics_get_font)
 	movw	%cx, %ax
 	shll	$4, %eax
 	movw	%dx, %ax
+
+	sti
 
 	pop	%edx
 	pop	%ecx
@@ -10325,6 +10497,8 @@ l2b:	inb	%dx, %al	/* wait vertical retrace */
 
 	DATA32	call	EXT_C(real_to_prot)
 	.code32
+
+	sti
 
 	pop	%edx
 	pop	%ecx
@@ -10455,6 +10629,41 @@ ENTRY(get_datetime)
 
 	popl	%ebp
 	ret
+
+
+ENTRY(init_pic)
+	pushw	%ax
+
+	movb	$0xff, %al
+	outb	%al, $PIC0_IMR
+	outb	%al, $PIC1_IMR
+
+	movb	$0x11, %al
+	outb	%al, $PIC0_ICW1
+	movb	$0x20, %al
+	outb	%al, $PIC0_ICW2
+	movb	$0x4, %al
+	outb	%al, $PIC0_ICW3
+	movb	$0x1, %al
+	outb	%al, $PIC0_ICW4
+
+	movb	$0x11, %al
+	outb	%al, $PIC1_ICW1
+	movb	$0x28, %al
+	outb	%al, $PIC1_ICW2
+	movb	$0x2, %al
+	outb	%al, $PIC1_ICW3
+	movb	$0x1, %al
+	outb	%al, $PIC1_ICW4
+
+	movb	$0xfc, %al
+	outb	%al, $PIC0_IMR
+	movb	$0xff, %al
+	outb	%al, $PIC1_IMR
+
+	popw	%ax
+	ret
+
 
 #if 0
 	/* This BIOS call should NOT be called since it will clear the byte at 0040:0070. */
@@ -10659,6 +10868,8 @@ gdtdescHMA:
 
 	/* set new GDT */
 	lgdt	(gdtdescHMA - EXT_C(HMA_start) + HMA_ADDR)
+
+	#lidt	%esp
 
 	/* set up segment limits */
 	movw	$PSEUDO_RM_DSEG, %ax

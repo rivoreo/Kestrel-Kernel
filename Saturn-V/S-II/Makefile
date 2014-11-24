@@ -7,7 +7,11 @@ endif
 ifndef $(ECHO)
 ECHO = ../tools/echo
 endif
+ifeq ($(OS_NAME),Cygwin)
+LD  = ld -mi386pe
+else
 LD = ld -melf_i386
+endif
 #OBJCOPY = objcopy --only-section=.text
 OBJCOPY = objcopy -R .note -R .comment -R .note.gnu.build-id
 #OBJCOPY = objcopy
@@ -23,16 +27,21 @@ OBJS = \
 	console.o \
 	fsys/fsys_ext2fs.o \
 	graphics.o \
+	idt.o \
 	io.o \
 	kestrel.o \
 	memory.o \
 	panic.o \
+	sched.o \
 	string.o \
 	time.o \
+	timer.o \
 	shell/command_table.o \
 	shell/common.o \
 	shell/interactive.o \
-	shell/script.o
+	shell/script.o \
+	systemcall/systemcall.o \
+	systemcall/time.o
 
 first:	kernel.com kernel-size.h
 

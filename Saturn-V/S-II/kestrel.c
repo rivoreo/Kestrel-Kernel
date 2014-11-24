@@ -12,18 +12,34 @@
 #include <kestrel/time.h>
 #include <kestrel/graphics.h>
 #include <kestrel/shell.h>
+#include <kestrel/sched.h>
+#include <kestrel/syscall.h>
 
 void cmain() {
 	kernel_puts("Kestrel " VERSION);
+	init_idt();
+	init_pic();
+	//__asm__("hlt\n");
+	init_timer();
+	init_sched();
 	init_memory();
+	init_systemcalls();
+	//__asm__("sti\n");
+	//set_int13_handler();
 #ifdef SUPPORT_GRAPHICS
 	//if(!graphics_init()) kernel_perror("graphics_init");
 #endif
+	save_kernel_startup_clock();
 	if(use_config_file && kernel_access(config_file, R_OK) == 0) {
 		kernel_printf("Loading config file: %s ...\n", config_file);
 		run_script(config_file);
 	} else {
 		kernel_putchar('\n');
 		enter_shell();
+		//__asm__("int	$0x21\n");
+		while(1) {
+			__asm__("sti\nhlt\n");
+			//kernel_putchar('.');
+		}
 	}
 }
