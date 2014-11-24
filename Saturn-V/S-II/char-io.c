@@ -12,6 +12,7 @@
 #include <kestrel/kernel.h>
 #include <kestrel/graphics.h>
 #include <kestrel/errno.h>
+#include <kestrel/keymaps.h>
 
 #define BUF_SIZE 64
 
@@ -215,8 +216,8 @@ int keycode_to_ascii(int code) {
 	static char keymap[] = {
 		-1, 0x1b, '1', '2', '3', '4', '5', '6', '7'
 	}*/
-	static char en_keymap1[] = "	qwertyuiop[]\r";
-	static char en_keymap2[] = "asdfghjkl;'";
+	/* static char en_keymap1[] = "	qwertyuiop[]\r";
+	static char en_keymap2[] = "asdfghjkl;'`";
 	static char en_keymap3[] = "\\zxcvbnm,./";
 	static char extra_number_keymap[] = "789-456+1230.";
 
@@ -224,19 +225,31 @@ int keycode_to_ascii(int code) {
 	static char en_shift_keymap2[] = "ASDFGHJKL:\"";
 	static char en_shift_keymap3[] = "|ZXCVBNM<>?";
 
-	enum {L_SHIFT_P=0x2a, R_SHIFT_P=0x36, L_SHIFT_R=0xAA, R_SHIFT_R=0xB6};
+	enum {L_SHIFT_P=0x2a, R_SHIFT_P=0x36, L_SHIFT_R=0xAA, R_SHIFT_R=0xB6}; */
 
 	switch(code) {
 		case 0x1:
 			return 0x1b;
 		case 0x2 ... 0xa:
-			return code + 0x2f;
+			if(!shift_pressed){
+				return code + 0x2f;
+			}else{
+				return en_keymap_num[code - 0x2];
+			}
 		case 0xb:
 			return 0x30;
 		case 0xc:
-			return '-';
+			if(!shift_pressed){
+				return '-';
+			}else{
+				return '_';
+			}
 		case 0xd:
-			return '=';
+			if(!shift_pressed){
+				return '=';
+			}else{
+				return '+';
+			}
 		case 0xe:
 			return 8;
 		case 0xf ... 0x1c:
