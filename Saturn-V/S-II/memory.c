@@ -6,7 +6,9 @@
 	This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
 
 	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-	*/
+*/
+
+// NOTE: Don't use gg=G on this file!
 
 #include <kestrel/kernel.h>
 #include <kestrel/errno.h>
@@ -52,6 +54,7 @@ void init_memory() {
 	unsigned long int addr = get_code_end();
 	saved_mmap_addr = addr;
 	saved_mmap_length = 0;
+	kernel_printf("code_end = 0x%lx\n", addr);
 
 	kernel_puts("Getting E820 memory...");
 	do {
@@ -158,9 +161,9 @@ void *kernel_malloc(size_t numbytes) {
 				panic("kernel_malloc: current_location_mcb->size too large");
 			}
 			//放弃此段内存空间，向下寻找合适内存空间
-				//在这放置下面的代码会导致alloc无限循环
-				//current_location = (char *)current_location + current_location_mcb->size;
-				size_t current_size = current_location_mcb->size;
+			//在这放置下面的代码会导致alloc无限循环
+			//current_location = (char *)current_location + current_location_mcb->size;
+			size_t current_size = current_location_mcb->size;
 			kernel_printf("current_size = %u\n", current_size);
 			if(!current_size) panic("kernel_malloc: MCB Size Exception");
 			current_location = (char *)current_location + current_size;
@@ -187,23 +190,49 @@ void *kernel_malloc(size_t numbytes) {
 
 		//返回指针
 		return memory_location;
-		}
 	}
-	void kernel_free(void *firstbyte) {
-		if(!firstbyte) return;
-		if(!allocater_is_inited) panic("free: allocater has not inited");
-		struct mem_control_block *mcb;
-		//回退到控制块
-		mcb = (struct mem_control_block *)((char *)firstbyte - sizeof(struct mem_control_block));
-		errno = 0;
-		//判断地址合法性
-		if(mcb->is_available) {
-			kernel_printf("free: In address 0x%lx\n", (long int)firstbyte);
-			errno = EFAULT;
-			if(mcb->is_available > 1) panic("free: Invalid address!");
-			kernel_puts("Warning: Double free!!!");
-			errno = EFAULT;
-		}
-		//Woo!! 成功释放内存，啦啦啦~~~
-		mcb->is_available = 1;
+}
+
+void kernel_free(void *firstbyte) {
+	if(!firstbyte) return;
+	if(!allocater_is_inited) panic("free: allocater has not inited");
+	struct mem_control_block *mcb;
+	//回退到控制块
+	mcb = (struct mem_control_block *)((char *)firstbyte - sizeof(struct mem_control_block));
+	errno = 0;
+	//判断地址合法性
+	if(mcb->is_available) {
+		kernel_printf("free: In address 0x%lx\n", (long int)firstbyte);
+		errno = EFAULT;
+		if(mcb->is_available > 1) panic("free: Invalid address!");
+		kernel_puts("Warning: Double free!!!");
+		errno = EFAULT;
 	}
+	//Woo!! 成功释放内存，啦啦啦~~~
+	mcb->is_available = 1;
+}
+
+void get_gdtr(struct td *p) {
+	__asm__("	sgdt	(%0)\n" :: "p"(p));
+}
+
+/*
+void set_segment_tss(struct sd *sd, void *base) {
+	sd->base_low = (unsigned int)base & 0xffff;
+	sd->base_mid = ((unsigned int)base >> 16) & 0xff;
+	sd->base_high = ((unsigned int)base >> 24) & 0xff;
+}*/
+
+void set_segment_descriptor(struct sd *sd, unsigned int limit, void *base, int ar) {
+	if(limit > 0xfffff) {
+		ar |= 0x8000;
+		limit /= 0x1000;
+	}
+	sd->limit_low = limit & 0xffff;
+	sd->base_low = (unsigned int)base & 0xffff;
+	sd->base_mid = ((unsigned int)base >> 16) & 0xff;
+	sd->access_right = ar & 0xff;
+	sd->limit_high = ((limit >> 16) & 0xf) | ((ar >> 8) & 0xf0);
+	sd->base_high = ((unsigned int)base >> 24) & 0xff;
+	//set_segment_tss(sd, base);
+}

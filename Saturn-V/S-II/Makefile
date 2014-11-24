@@ -16,7 +16,7 @@ endif
 OBJCOPY = objcopy -R .note -R .comment -R .note.gnu.build-id
 #OBJCOPY = objcopy
 
-CFLAGS = -I../include --include ../version.h -DSUPPORT_GRAPHICS=1 -DSUPPORT_GFX=1 -Os -fno-stack-protector -fno-builtin -nostdinc -Wall -Wunused -Wshadow -Wpointer-arith -falign-jumps=1 -falign-loops=1 -falign-functions=1 -Wundef
+CFLAGS = -I../include --include ../version.h -DSUPPORT_GRAPHICS=1 -DSUPPORT_GFX=1 -Os -fno-stack-protector -fno-builtin -nostdinc -Wall -Wunused -Wshadow -Wpointer-arith -falign-jumps=1 -falign-loops=1 -falign-functions=1 -Wundef -g
 LDFLAGS = -N -Ttext 8200 --build-id=none
 LIBS = -L../lib -lmstr
 
@@ -34,6 +34,7 @@ OBJS = \
 	panic.o \
 	sched.o \
 	string.o \
+	thread.o \
 	time.o \
 	timer.o \
 	shell/command_table.o \

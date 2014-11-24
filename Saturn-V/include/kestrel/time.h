@@ -34,7 +34,9 @@ time_t time(time_t *);
 
 int gettime(struct tm *);
 time_t mktime_sec(struct tm *);
-time_t get_startup_clock(void);
-void save_kernel_startup_clock(void);
+time_t get_startup_time(void);
+void save_kernel_startup_time(void);
+
+unsigned long int get_uptime(void);
 
 #endif

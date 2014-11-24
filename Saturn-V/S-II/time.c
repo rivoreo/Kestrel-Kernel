@@ -6,25 +6,25 @@
 	This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
 
 	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
- */
+*/
 
 #include <kestrel/kernel.h>
 #include <kestrel/time.h>
 #include <kestrel/asm/io.h>
 
-static time_t _startup_clock;
+static time_t _startup_time;
 
-void save_kernel_startup_clock() {
+void save_kernel_startup_time() {
 	struct tm t;
 	gettime(&t);
-	_startup_clock = mktime_sec(&t);
+	_startup_time = mktime_sec(&t);
 }
 
-time_t get_startup_clock() {
-	if(!_startup_clock) {
+time_t get_startup_time() {
+	if(!_startup_time) {
 		return -1;
 	}
-	return _startup_clock;
+	return _startup_time;
 }
 
 int gettime(struct tm *t) {

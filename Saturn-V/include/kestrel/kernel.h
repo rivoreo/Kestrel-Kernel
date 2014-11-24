@@ -39,16 +39,21 @@ struct mem_control_block {
 	size_t size;
 };
 
+struct sd {
+	short int limit_low, base_low;
+	char base_mid, access_right, limit_high, base_high;
+} __attribute__((packed));
+
 struct gd {
 	short int offset_low, selector;
 	char count, access_right;
 	short int offset_high;
-} __attribute((packed));
+} __attribute__((packed));
 
-struct idtr {
-	short int limits;
-	struct gd *address;
-} __attribute((packed));
+struct td {
+	short int limit;
+	void *address;
+} __attribute__((packed));
 
 void stop(void) __attribute__((__noreturn__));
 void panic(const char *) __attribute__((__noreturn__));
@@ -97,8 +102,13 @@ void kernel_malloc_init(void *);
 //void set_int20_handler(void);
 //void unset_int20_handler(void);
 
-void get_idtr(struct idtr *);
-void set_idtr(const struct idtr *);
+void get_gdtr(struct td *);
+//void set_gdtr(const struct td *);
+void set_segment_tss(struct sd *, void *base);
+void set_segment_descriptor(struct sd *, unsigned int, void *, int);
+
+void get_idtr(struct td *);
+void set_idtr(const struct td *);
 void set_gate_handler(struct gd *, int (*)(), int, int);
 
 void init_idt(void);
