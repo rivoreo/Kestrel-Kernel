@@ -29,7 +29,7 @@ void cmain() {
 #ifdef SUPPORT_GRAPHICS
 	//if(!graphics_init()) kernel_perror("graphics_init");
 #endif
-	save_kernel_startup_clock();
+	save_kernel_startup_time();
 	if(use_config_file && kernel_access(config_file, R_OK) == 0) {
 		kernel_printf("Loading config file: %s ...\n", config_file);
 		run_script(config_file);

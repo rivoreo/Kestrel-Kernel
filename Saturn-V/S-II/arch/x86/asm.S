@@ -1341,6 +1341,8 @@ ENTRY(int21_handler)
 	cli
 	pushw	%es
 	pushw	%ds
+	pusha
+/*
 	pushl	%eax
 	pushl	%ecx
 	pushl	%edx
@@ -1349,6 +1351,7 @@ ENTRY(int21_handler)
 	pushl	%ebp
 	pushl	%esi
 	pushl	%edi
+*/
 	movb	$0x61, %al
 	outb	%al, $PIC0_OCW2
 	xorl	%eax, %eax
@@ -1361,6 +1364,7 @@ ENTRY(int21_handler)
 	call	input_buffer_put
 	cli
 	popl	%eax
+/*
 	popl	%edi
 	popl	%esi
 	popl	%ebp
@@ -1369,6 +1373,8 @@ ENTRY(int21_handler)
 	popl	%edx
 	popl	%ecx
 	popl	%eax
+*/
+	popa
 	popw	%ds
 	popw	%es
 	sti
@@ -1401,7 +1407,8 @@ ENTRY(int20_handler)
 	cli
 	pushw	%es
 	pushw	%ds
-#	pushad
+	pusha
+/*
 	pushl	%eax
 	pushl	%ecx
 	pushl	%edx
@@ -1410,6 +1417,7 @@ ENTRY(int20_handler)
 	pushl	%ebp
 	pushl	%esi
 	pushl	%edi
+*/
 	movb	$0x60, %al
 	outb	%al, $PIC0_OCW2
 	movl	%esp, %eax
@@ -1420,7 +1428,8 @@ ENTRY(int20_handler)
 	call	timer_interrupt_handler
 	cli
 	popl	%eax
-#	popad
+	popa
+/*
 	popl	%edi
 	popl	%esi
 	popl	%ebp
@@ -1429,6 +1438,7 @@ ENTRY(int20_handler)
 	popl	%edx
 	popl	%ecx
 	popl	%eax
+*/
 	popw	%ds
 	popw	%es
 	sti
@@ -8419,11 +8429,11 @@ cross_track:
  */
 ENTRY(get_code_end)
 	/* will be the end of the bss */
-# if defined(HAVE_END_SYMBOL)
+//# if defined(HAVE_END_SYMBOL)
 	movl	$end, %eax
-# elif defined(HAVE_USCORE_END_SYMBOL)
-	movl	$_end, %eax
-# endif
+//# elif defined(HAVE_USCORE_END_SYMBOL)
+//	movl	$_end, %eax
+//# endif
 	shrl	$2, %eax		/* Round up to the next word. */
 	incl	%eax
 	shll	$2, %eax
@@ -10749,6 +10759,7 @@ VARIABLE(apm_bios_info)
  *  Note the ordering of the data items is reversed from the above
  *  description.
  */
+#define THREAD_MAX 32
 
 	.align	16
 gdt:
@@ -10757,7 +10768,8 @@ gdt:
 
 	/* code segment */
 	.word	0xFFFF, 0
-	.byte	0, 0x9A, 0xCF, 0
+#	.byte	0, 0x9A, 0xCF, 0
+	.byte	0, 0x9a, 0xcf, 0
 
 	/* data segment */
 	.word	0xFFFF, 0
@@ -10771,10 +10783,19 @@ gdt:
 	.word	0xFFFF, 0
 	.byte	0, 0x92, 0, 0
 
+	# TSS test
+#	.word	0x0103, 0
+#	.byte	0, 0, 0, 0
+
+#	.space	0x100		# Max thread: 32
+	.space	THREAD_MAX * 8
+
 
 /* this is the GDT descriptor */
 gdtdesc:
-	.word	0x27			/* limit */
+#	.word	0x27			/* limit */
+	.word	(5 + THREAD_MAX) * 8 - 1
+#	.word	0x127
 	.long	gdt			/* addr */
 
 

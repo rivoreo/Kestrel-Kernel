@@ -11,6 +11,9 @@
 #include <kestrel/kernel.h>
 #include <kestrel/time.h>
 #include <kestrel/errno.h>
+#include <kestrel/sched.h>
+
+static unsigned long int _uptime;
 
 void init_timer() {
 	kernel_puts("function: init_timer()");
@@ -34,4 +37,10 @@ void timer_interrupt_handler() {
 	//kernel_printf("%d ", test_number);
 	//__asm__("cli\n");
 	//kernel_panic("timer_interrupt_handler", ENOSYS);
+	_uptime++;
+	if(_uptime & 2) schedule();
+}
+
+unsigned long int get_uptime() {
+	return _uptime;
 }

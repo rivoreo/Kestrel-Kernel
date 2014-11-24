@@ -9,12 +9,14 @@ COMMANDS = \
 	date.o \
 	doublefree.o \
 	echo.o \
+	graphics.o \
 	help.o \
 	malloctest.o \
 	mem.o \
 	panic.o \
 	reboot.o \
-	testint.o
+	threadtest.o \
+	uptime.o
 
 commands.a:	$(COMMANDS)
 	$(AR) r $@ $^

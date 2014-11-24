@@ -274,6 +274,8 @@ void input_buffer_put(int code) {
 			} else {
 				x = 79;
 				y = (xy & 0xff) - 1;
+				kernel_gotoxy(x, y);	// XXX
+				return;			// XXX
 			}
 			//kernel_putchar(8);
 			kernel_gotoxy(x, y);

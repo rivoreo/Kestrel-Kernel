@@ -12,11 +12,11 @@
 
 static struct gd *idt;
 
-void get_idtr(struct idtr *p) {
+void get_idtr(struct td *p) {
 	__asm__("	sidt	(%0)\n" :: "p" (p));
 }
 
-void set_idtr(const struct idtr *p) {
+void set_idtr(const struct td *p) {
 	__asm__("	cli\n");
 	__asm__("	lidt	(%0)\n" :: "p" (p));
 	__asm__("	sti\n");
@@ -35,8 +35,8 @@ void set_gate_handler(struct gd *gd, int (*handler)(), int selector, int ar) {
 void init_idt() {
 	kernel_puts("function: init_idt()");
 	idt = (struct gd *)0x0;
-	struct idtr t = {
-		.limits = 0x7ff,
+	struct td t = {
+		.limit = 0x7ff,
 		.address = idt
 	};
 	set_idtr(&t);
