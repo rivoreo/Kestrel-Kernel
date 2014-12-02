@@ -22,7 +22,9 @@
 static int shift_pressed = 0;
 static int shift_checked = 1;
 static int capslock_pressed = 0;
-static int capslock_checked = 1; 
+static int capslock_checked = 1;
+
+static int number_locked = 0;
 
 int console_getkey(void);
 void console_putchar(int);
@@ -277,8 +279,20 @@ int keycode_to_ascii(int code) {
 				kernel_printf("capslock pressed\n");
 				return -2;
 			} */
+		case 0x45:
+			number_locked = !number_locked;
+			return -2;
 		case 0x47 ... 0x53:
-			return KEYMAP_EXTRA_NUMBER[code - 0x47];
+			if(number_locked) {
+				return KEYMAP_EXTRA_NUMBER[code - 0x47];
+			}
+			switch(code) {
+				case 0x4a:
+					return '-';
+				case 0x4e:
+					return '+';
+			}
+			return -2;
 
 		/* Press */
 		case L_SHIFT_P:
