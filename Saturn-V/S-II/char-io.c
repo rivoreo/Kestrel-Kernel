@@ -16,9 +16,13 @@
 
 #define BUF_SIZE 64
 
+#define IsCaps	((capslock_pressed && !shift_pressed) || (!capslock_pressed && shift_pressed))
+
 /* Default SHIFT NOT PRESSED */
 static int shift_pressed = 0;
 static int shift_checked = 1;
+static int capslock_pressed = 0;
+static int capslock_checked = 1; 
 
 int console_getkey(void);
 void console_putchar(int);
@@ -226,7 +230,7 @@ int keycode_to_ascii(int code) {
 		case 0x1:
 			return 0x1b;
 		case 0x2 ... 0xb:
-			if(!shift_pressed){
+			if(!IsCaps){
 				if(code == 0xb) return 0x30;
 				return code + 0x2f;
 			}else{
@@ -235,13 +239,13 @@ int keycode_to_ascii(int code) {
 		//case 0xb:
 		//	return 0x30;
 		case 0xc:
-			if(!shift_pressed){
+			if(!IsCaps){
 				return '-';
 			}else{
 				return '_';
 			}
 		case 0xd:
-			if(!shift_pressed){
+			if(!IsCaps){
 				return '=';
 			}else{
 				return '+';
@@ -249,35 +253,30 @@ int keycode_to_ascii(int code) {
 		case 0xe:
 			return 8;
 		case 0xf ... 0x1c:
-			/*
-			if(!shift_pressed){
-				return en_keymap1[code - 0xf];
-			}else{
-				return en_shift_keymap1[code - 0xf];
-			}*/
-			return (shift_pressed ? KEYMAP1_UP : KEYMAP1)[code - 0xf];
+			return (IsCaps ? KEYMAP1_UP : KEYMAP1)[code - 0xf];
 		case 0x1d:
 			return 0x1;
 		case 0x1e ... 0x29:
-			/*
-			if(!shift_pressed){
-				return en_keymap2[code - 0x1e];
-			}else{
-				return en_shift_keymap2[code - 0x1e];
-			}*/
-			return (shift_pressed ? KEYMAP2_UP : KEYMAP2)[code - 0x1e];
+			return (IsCaps ? KEYMAP2_UP : KEYMAP2)[code - 0x1e];
 		case 0x2b ... 0x35:
-			/*
-			if(!shift_pressed){
-				return en_keymap3[code - 0x2b];
-			}else{
-				return en_shift_keymap3[code - 0x2b];
-			}*/
-			return (shift_pressed ? KEYMAP3_UP : KEYMAP3)[code - 0x2b];
+			return (IsCaps ? KEYMAP3_UP : KEYMAP3)[code - 0x2b];
 		case 0x37:
 			return '*';		// Extra
 		case 0x39:
 			return ' ';
+		case 0x3a:
+			if(!capslock_pressed){
+				capslock_pressed = 1;
+			}else{
+				capslock_pressed = 0;
+			}
+			/* Reset capslock check status, to check capslock status again when next time. */
+			capslock_checked = 0;
+			return -2;
+			/* if(capslock == 0x0010){
+				kernel_printf("capslock pressed\n");
+				return -2;
+			} */
 		case 0x47 ... 0x53:
 			return KEYMAP_EXTRA_NUMBER[code - 0x47];
 
@@ -311,6 +310,10 @@ void input_buffer_put(int code) {
 	int c = keycode_to_ascii(code);
 	if(!shift_checked) {
 		shift_checked = 1;
+		return;
+	}
+	if(!capslock_checked) {
+		capslock_checked = 1;
 		return;
 	}
 	switch(c) {

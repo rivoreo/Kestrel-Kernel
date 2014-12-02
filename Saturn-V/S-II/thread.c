@@ -17,7 +17,7 @@ ktask_t kernel_thread_create(ktask_func_t f, void *arg) {
 	ktask_t r = make_task();
 	r->tss.eip = (int)f;
  	r->tss.esp = (int)get_code_end() + 2048 * 2;	// XXX
- 	unsigned char *p = (unsigned char *)r->tss.esp + 32, pp;
+ 	unsigned char *p = (unsigned char *)r->tss.esp + 32, *pp = p;
 	while(p-- > pp - 1024) *p = 0;
 	((void **)(r->tss.esp))[1] = &arg;
 	*((long int *)r->tss.esp) = 0xabcdef;
