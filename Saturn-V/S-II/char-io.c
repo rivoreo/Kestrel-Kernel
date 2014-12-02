@@ -230,7 +230,7 @@ int keycode_to_ascii(int code) {
 		case 0x1:
 			return 0x1b;
 		case 0x2 ... 0xb:
-			if(!IsCaps){
+			if(!shift_pressed) {
 				if(code == 0xb) return 0x30;
 				return code + 0x2f;
 			}else{
