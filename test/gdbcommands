@@ -1,0 +1,3 @@
+target remote :1234
+symbol-file /home/bmy001/Work/Kernel/Kestrel/Saturn-V/S-II/kernel
+c
