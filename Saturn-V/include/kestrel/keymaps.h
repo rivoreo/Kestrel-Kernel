@@ -67,7 +67,7 @@ static char en_shift_keymap3[] = "|ZXCVBNM<>?";
 #define KEYMAP1_UP "	\"<>PYFGCRL?+\r"
 #define KEYMAP2_UP "AOEUIDHTNS_~"
 #define KEYMAP3_UP "|:QJKXBMWVZ"
-#define KEYMAP4_UP "!@#$%^&*()_+"
+#define KEYMAP4_UP "!@#$%^&*(){}"
 #define KEYMAP_EXTRA_NUMBER "789-456+1230."
 
 #endif
