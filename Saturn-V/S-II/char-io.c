@@ -22,7 +22,9 @@
 static int shift_pressed = 0;
 static int shift_checked = 1;
 static int capslock_pressed = 0;
-static int capslock_checked = 1; 
+static int capslock_checked = 1;
+
+static int number_locked = 0;
 
 int console_getkey(void);
 void console_putchar(int);
@@ -185,7 +187,6 @@ int kernel_getchar() {
 	int c = input_buffer_get();
 	if(c == -1) return -1;
 	c &= 0xff;
-	//kernel_printf("c = %d\n", c);
 	//if(c != 8 && c != '	') kernel_putchar(c);
 	return c;
 #endif
@@ -216,10 +217,6 @@ void kernel_gotoxy(int x, int y) {
 }
 
 int keycode_to_ascii(int code) {
-/*
-	static char keymap[] = {
-		-1, 0x1b, '1', '2', '3', '4', '5', '6', '7'
-	}*/
 	/* static char en_keymap1[] = "	qwertyuiop[]\r";
 	static char en_keymap2[] = "asdfghjkl;'`";
 	static char en_keymap3[] = "\\zxcvbnm,./";
@@ -234,14 +231,15 @@ int keycode_to_ascii(int code) {
 	switch(code) {
 		case 0x1:
 			return 0x1b;
-		case 0x2 ... 0xa:
-			if(!IsCaps){
+		case 0x2 ... 0xb:
+			if(!shift_pressed) {
+				if(code == 0xb) return 0x30;
 				return code + 0x2f;
 			}else{
-				return en_keymap_num[code - 0x2];
+				return KEYMAP4_UP[code - 0x2];
 			}
-		case 0xb:
-			return 0x30;
+		//case 0xb:
+		//	return 0x30;
 		case 0xc:
 			if(!IsCaps){
 				return '-';
@@ -257,25 +255,13 @@ int keycode_to_ascii(int code) {
 		case 0xe:
 			return 8;
 		case 0xf ... 0x1c:
-			if(!IsCaps){
-				return en_keymap1[code - 0xf];
-			}else{
-				return en_shift_keymap1[code - 0xf];
-			}
+			return (IsCaps ? KEYMAP1_UP : KEYMAP1)[code - 0xf];
 		case 0x1d:
 			return 0x1;
 		case 0x1e ... 0x29:
-			if(!IsCaps){
-				return en_keymap2[code - 0x1e];
-			}else{
-				return en_shift_keymap2[code - 0x1e];
-			}
+			return (IsCaps ? KEYMAP2_UP : KEYMAP2)[code - 0x1e];
 		case 0x2b ... 0x35:
-			if(!IsCaps){
-				return en_keymap3[code - 0x2b];
-			}else{
-				return en_shift_keymap3[code - 0x2b];
-			}
+			return (IsCaps ? KEYMAP3_UP : KEYMAP3)[code - 0x2b];
 		case 0x37:
 			return '*';		// Extra
 		case 0x39:
@@ -288,27 +274,41 @@ int keycode_to_ascii(int code) {
 			}
 			/* Reset capslock check status, to check capslock status again when next time. */
 			capslock_checked = 0;
-			return;
+			return -2;
 			/* if(capslock == 0x0010){
 				kernel_printf("capslock pressed\n");
-				return;
+				return -2;
 			} */
+		case 0x45:
+			number_locked = !number_locked;
+			return -2;
 		case 0x47 ... 0x53:
-			return extra_number_keymap[code - 0x47];
+			if(number_locked) {
+				return KEYMAP_EXTRA_NUMBER[code - 0x47];
+			}
+			switch(code) {
+				case 0x4a:
+					return '-';
+				case 0x4e:
+					return '+';
+			}
+			return -2;
+
+		/* Press */
 		case L_SHIFT_P:
 		case R_SHIFT_P:
 			shift_checked = 0;
 			shift_pressed = 1;
 			/* kernel_printf("shift pressed\n"); */
-			return;
+			return -2;
 
-		/* release */
+		/* Release */
 		case L_SHIFT_R:
 		case R_SHIFT_R:
 			shift_checked = 0;
 			shift_pressed = 0;
 			/* kernel_printf("shift releaseed\n"); */
-			return;
+			return -2;
 
 	}
 	return -2;
@@ -316,11 +316,6 @@ int keycode_to_ascii(int code) {
 
 void input_buffer_put(int code) {
 	//kernel_printf("function: char_buffer_add(%d)\n", code);
-	//kernel_putchar(code);
-	/*
-	extern unsigned int test_number;
-	test_number++;
-	__asm__("cli\n");*/
 /*
 	__asm__("	movb	$0x61, %%al\n"
 		"	outb	%%al, $0x20\n"
@@ -339,7 +334,6 @@ void input_buffer_put(int code) {
 		case -2:
 			return;
 		case 8: {
-			//kernel_putchar('!');
 			if(input_buffer.front == input_buffer.rear) return;
 			//printf("%d, %d\n", input_buffer.front, input_buffer.rear);
 			int xy = kernel_getxy();
