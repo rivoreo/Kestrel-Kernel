@@ -185,12 +185,12 @@ void *kernel_malloc(size_t numbytes) {
 		}
 		//将指针偏移移动过控制块(MCB)
 		memory_location = (char *)memory_location + sizeof(struct mem_control_block);
-
-		errno = 0;
-
-		//返回指针
-		return memory_location;
 	}
+
+	errno = 0;
+
+	//返回指针
+	return memory_location;
 }
 
 void kernel_free(void *firstbyte) {

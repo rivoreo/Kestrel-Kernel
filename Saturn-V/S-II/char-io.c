@@ -217,17 +217,6 @@ void kernel_gotoxy(int x, int y) {
 }
 
 int keycode_to_ascii(int code) {
-	/* static char en_keymap1[] = "	qwertyuiop[]\r";
-	static char en_keymap2[] = "asdfghjkl;'`";
-	static char en_keymap3[] = "\\zxcvbnm,./";
-	static char extra_number_keymap[] = "789-456+1230.";
-
-	static char en_shift_keymap1[] = "	QWERTYUIOP{}\r";
-	static char en_shift_keymap2[] = "ASDFGHJKL:\"";
-	static char en_shift_keymap3[] = "|ZXCVBNM<>?";
-
-	enum {L_SHIFT_P=0x2a, R_SHIFT_P=0x36, L_SHIFT_R=0xAA, R_SHIFT_R=0xB6}; */
-
 	switch(code) {
 		case 0x1:
 			return 0x1b;
@@ -236,22 +225,12 @@ int keycode_to_ascii(int code) {
 				if(code == 0xb) return 0x30;
 				return code + 0x2f;
 			}else{
-				return KEYMAP4_UP[code - 0x2];
+				return KEYMAP5_UP[code - 0x2];
 			}
-		//case 0xb:
-		//	return 0x30;
 		case 0xc:
-			if(!IsCaps){
-				return '-';
-			}else{
-				return '_';
-			}
+			return (shift_pressed ? KEYMAP4_UP : KEYMAP4)[0];
 		case 0xd:
-			if(!IsCaps){
-				return '=';
-			}else{
-				return '+';
-			}
+			return (shift_pressed ? KEYMAP4_UP : KEYMAP4)[1];
 		case 0xe:
 			return 8;
 		case 0xf ... 0x1c:
