@@ -4,7 +4,7 @@ AS = as --32
 ifeq ($(CC),cc)
 CC = gcc -m32
 endif
-ifndef $(ECHO)
+ifndef ECHO
 ECHO = ../tools/echo
 endif
 ifeq ($(OS_NAME),Cygwin)
@@ -16,7 +16,11 @@ endif
 OBJCOPY = objcopy -R .note -R .comment -R .note.gnu.build-id
 #OBJCOPY = objcopy
 
-CFLAGS = -I../include --include ../version.h -DSUPPORT_GRAPHICS=1 -DSUPPORT_GFX=1 -Os -fno-stack-protector -fno-builtin -nostdinc -Wall -Wunused -Wshadow -Wpointer-arith -falign-jumps=1 -falign-loops=1 -falign-functions=1 -Wundef -g
+ifndef KEYMAP
+KEYMAP = dovrak
+endif
+
+CFLAGS = -I../include --include ../version.h -D_KEYMAP_$(KEYMAP) -DSUPPORT_GRAPHICS=1 -DSUPPORT_GFX=1 -Os -fno-stack-protector -fno-builtin -nostdinc -Wall -Wunused -Wshadow -Wpointer-arith -falign-jumps=1 -falign-loops=1 -falign-functions=1 -Wundef -g
 LDFLAGS = -N -Ttext 8200 --build-id=none
 LIBS = -L../lib -lmstr
 

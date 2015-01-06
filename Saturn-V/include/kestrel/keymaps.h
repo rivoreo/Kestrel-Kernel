@@ -11,12 +11,13 @@
 #ifndef _KESTREL_KEYMAPS_H
 #define _KESTREL_KEYMAPS_H
 
-#define dovrak
+//#define dovrak
 
+
+#if defined _KEYMAP_en_US
 /*************************************
 * en_US Keyboard
 **************************************/
-#ifdef en_US
 
 #define L_SHIFT_P	0x2a
 #define R_SHIFT_P	0x36
@@ -36,13 +37,12 @@
 
 #define KEYMAP_EXTRA_NUMBER "789-456+1230."
 
-#endif
 
+#elif defined _KEYMAP_dovrak
 
 /*************************************
-* dovrak Keyboard
+* Dovrak Keyboard
 **************************************/
-#ifdef dovrak
 
 #define L_SHIFT_P	0x2a
 #define R_SHIFT_P	0x36
@@ -61,7 +61,11 @@
 #define KEYMAP5_UP "!@#$%^&*()"
 #define KEYMAP_EXTRA_NUMBER "789-456+1230."
 
-#endif		// dovrak
+// end of dovrak
 
+
+#else
+#error "Unknown KEYMAP type"
+#endif
 
 #endif

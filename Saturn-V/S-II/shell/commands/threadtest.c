@@ -13,18 +13,29 @@
 
 #include <kestrel/sched.h>
 
+__volatile__ int i = 10000;
+
 void task1(void *a) {
 }
 
 void task2(void *a) {
+	//*(long int *)0 = (long int)&i;
 	while(1) {
 		//__asm__("cli\n");
 		//kernel_puts("Hello!!");
 		//kernel_putchar('.');
 		//__asm__("cli\n");
-		kernel_putchar('.');
+		//kernel_putchar('.');
 		//__asm__("	ljmp	$40, $0\n");
-		__asm__("hlt\n");
+		//__asm__("hlt\n");
+	//	__volatile__ register int a = i;
+	//	a = a - 2;
+	//	i = a++;
+	//	a++;
+	//	i = a;
+		i--;
+		//i -= 2;
+		//i = 1000;
 	}
 }
 
@@ -51,8 +62,9 @@ int threadtest_command(int argc, char **argv) {
 	kernel_printf("t->index = %d\n", t->index);
 	kernel_printf("t->tss.cs = %d\n", t->tss.cs);
 	//kernel_getchar();
-	int i = 0;
-	while(1) kernel_printf("%d\r", i++);
+	//int i = 0;
+	kernel_printf("&i = 0x%lx\n", &i);
+	while(1) kernel_printf("%d\r", i += 10000);
 	//__asm__ volatile("	ljmp	$48, $0\n");
 	//int i = t->index;
 	//__asm__ volatile("	ljmp	%0, $0\n" :: "g"(i));
