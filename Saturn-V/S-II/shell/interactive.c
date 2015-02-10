@@ -29,6 +29,17 @@ void enter_shell() {
 		kernel_putchar('\n');
 		while(*commandline == ' ') commandline++;
 		if(!*commandline) continue;
+		int i;
+		for(i=0; commandline[i]; i++) if(commandline[i] == '$') {
+			if(i && commandline[i-1] == '\\') continue;
+			if(commandline[i+1] == '?') {
+				char numb[11];
+				size_t len = convert_to_ascii(numb, 'd', last_status) - numb;
+				numb[len] = 0;
+				kernel_memmove(commandline + i + len, commandline + i + 2, kernel_strlen(commandline + i + 2) + 1);
+				kernel_memcpy(commandline + i, numb, len);
+			}
+		}
 		command = find_command(commandline);
 		if(!command) {
 			kernel_printf("%s: command not found\n", commandline);
@@ -39,7 +50,7 @@ void enter_shell() {
 #ifndef USE_ARRAY
 		char **_argv;
 #endif
-		int i = mstrcount(commandline);
+		i = mstrcount(commandline);
 		_argc = i;
 #ifndef USE_ARRAY
 		_argv = (char **)kernel_alloc((i + 1) * sizeof(char *));
